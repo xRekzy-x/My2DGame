@@ -4,9 +4,16 @@ import entities.Entity;
 import entities.NPC1;
 import entities.Player;
 import entities.skeleton;
+import monster.Slime;
+
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+
 import javax.swing.JPanel;
 import javax.swing.plaf.DimensionUIResource;
 import objects.Boots;
@@ -18,13 +25,15 @@ import tile.Tile;
 import tile.TileManager;
 
 public class GamePanel extends JPanel implements Runnable {
+   int i;
    final int originalTileSize = 16;
    final int scale = 3;
-   final int tileSize = 48;
+   final int tileSize = originalTileSize*scale;
    final int maxScreenCol = 16;
    final int maxScreenRow = 12;
-   final int screenWidth = 768;
-   final int screenHeight = 576;
+   final int screenWidth = maxScreenCol*tileSize;
+   final int screenHeight = maxScreenRow*tileSize;
+   Graphics2D g2;
    long timer = 0L;
    int drawCount = 999;
    private boolean debug = false;
@@ -33,28 +42,42 @@ public class GamePanel extends JPanel implements Runnable {
    TileManager tile = new TileManager(this);
    int FPS = 60;
    UI ui = new UI(this);
-   final int maxWorldCol = 50;
-   final int maxWorldRow = 50;
-   final int worldWidth = 2400;
-   final int worldHeight = 2400;
+   final int maxWorldRow = 20;
+   final int maxWorldCol = 25;
+   final int worldWidth = maxWorldCol*tileSize;
+   final int worldHeight = maxScreenRow*tileSize;
    CollisionChecker colCheck = new CollisionChecker(this);
+
+   //SOUND AND MUSIC
    Sound music = new Sound();
    Sound effect = new Sound();
-   SuperObj[] obj = new SuperObj[50];
+
+   //ENTITIES
+   Entity[] obj = new Entity[50];
+   Entity[] npc = new Entity[10];
+   Entity[] monster = new Entity[50];
+
+   //PLAYER
    Player player;
-   Entity[] npc;
    int playerX;
    int playerY;
    int playerSpeed;
+
+   //GAME STATE
    private int gameState;
    private int titleState=0;
    private int playState=1;
    private int pauseState=2;
    private int dialogueState=3;
 
+   //EVENT
+   private Event event = new Event(this);
+
+   //DRAW ORDER
+   ArrayList<Entity> entityList = new ArrayList<>();
+
    public GamePanel() {
       this.player = new Player(this, this.key);
-      this.npc = new Entity[10];
       this.playerX = 100;
       this.playerY = 100;
       this.playerSpeed = 4;
@@ -68,148 +91,76 @@ public class GamePanel extends JPanel implements Runnable {
       this.addKeyListener(this.key);
       this.setFocusable(true);
    }
-
-   public void getColCheckTile(Entity entity) {
-      this.colCheck.checkTile(entity);
-   }
-
-   public int getColCheckObject(Entity entity, boolean isPlayer) {
-      return this.colCheck.checkObj(entity, isPlayer);
-   }
-
-   public void getColCheckPlayer(Entity entity) {
-      this.colCheck.checkPlayer(entity);
-   }
-
-   public int getColCheckEntity(Entity entity, Entity[] target) {
-      return this.colCheck.checkEntity(entity, target);
-   }
-
-   public int getColCheckInteract(Entity entity, Entity[] target) {
-      return this.colCheck.checkInteract(entity, target);
-   }
+   //GET COLLISION CHECK
+   public void getColCheckTile(Entity entity) {colCheck.checkTile(entity);}
+   public int getColCheckObject(Entity entity, boolean isPlayer) {return this.colCheck.checkObj(entity, isPlayer);}
+   public boolean getColCheckPlayer(Entity entity) {return colCheck.checkPlayer(entity);}
+   public int getColCheckEntity(Entity entity, Entity[] target) {return this.colCheck.checkEntity(entity, target);}
+   public int getColCheckInteract(Entity entity, Entity[] target) {return this.colCheck.checkInteract(entity, target);}
 
    public void setObjects() {
-      this.obj[0] = new Chest();
-      this.obj[0].setX(192);
-      this.obj[0].setY(192);
-      this.obj[1] = new Key();
+      this.obj[0] = new Chest(this);
+      this.obj[0].setX(5*tileSize);
+      this.obj[0].setY(4*tileSize);
+      this.obj[1] = new Key(this);
       this.obj[1].setX(480);
       this.obj[1].setY(480);
-      this.obj[2] = new Boots();
+      this.obj[2] = new Boots(this);
       this.obj[2].setX(576);
       this.obj[2].setY(576);
-      this.obj[3] = new Boots();
+      this.obj[3] = new Boots(this);
       this.obj[3].setX(624);
       this.obj[3].setY(576);
-      this.obj[4] = new Boots();
+      this.obj[4] = new Boots(this);
       this.obj[4].setX(672);
       this.obj[4].setY(576);
-      this.obj[5] = new StrengPotion();
+      this.obj[5] = new StrengPotion(this);
       this.obj[5].setX(768);
       this.obj[5].setY(576);
    }
-
    public void setNPC() {
-      this.npc[0] = new skeleton(this);
-      this.npc[0].setX(480);
-      this.npc[0].setY(480);
       this.npc[1] = new NPC1(this);
       this.npc[1].setX(144);
       this.npc[1].setY(96);
    }
+   public void setMonster(){
+      monster[0] = new skeleton(this);
+      monster[0].setX(480);
+      monster[0].setY(480);
+      // monster[1]=new Slime(this);
+      // monster[1].setX(0*tileSize);
+      // monster[1].setY(6*tileSize);
+      monster[2]=new Slime(this);
+      monster[2].setX(getPlayerX()+tileSize);
+      monster[2].setY(getPlayerY()-tileSize); 
 
-   public void setGameState(int gameState) {
-      this.gameState = gameState;
    }
-
-   public int getGameState() {
-      return this.gameState;
-   }
-
-   public int getTitleState() {
-      return this.titleState;
-   }
-
-   public int getPlayState() {
-      return this.playState;
-   }
-
-   public int getPauseState() {
-      return this.pauseState;
-   }
-
-   public int getDialogueState() {
-      return this.dialogueState;
-   }
-
-   public int getTileSize() {
-      return 48;
-   }
-
-   public int getScreenWidth() {
-      return 768;
-   }
-
-   public int getScreenHeight() {
-      return 576;
-   }
-
-   public int getScale() {
-      return 3;
-   }
-
-   public int getMaxScreenCol() {
-      return 16;
-   }
-
-   public int getMaxScreenRow() {
-      return 12;
-   }
-
-   public int getMaxWorldCol() {
-      return 50;
-   }
-
-   public int getWorldWidth() {
-      return 2400;
-   }
-
-   public int getMaxWorldRow() {
-      return 50;
-   }
-
-   public int getWorldHeight() {
-      return 2400;
-   }
-
-   public int getPlayerX() {
-      return this.player.x;
-   }
-
-   public int getPlayerY() {
-      return this.player.y;
-   }
-
-   public int getPlayerScreenX() {
-      return this.player.getScreenX();
-   }
-
-   public int getPlayerScreenY() {
-      return this.player.getScreenY();
-   }
-
-   public int getStrength() {
-      return this.player.getStrength();
-   }
-
-   public int[][] getMapTile() {
-      return this.tile.getMapTile();
-   }
-
-   public int[][] getOverLay() {
-      return this.tile.getOverLay();
-   }
+   public Graphics2D getG2(){ return g2;}
+   public void setGameState(int gameState) {this.gameState = gameState;}
+   public int getGameState() {return this.gameState;}
+   public int getTitleState() {return this.titleState;}
+   public int getPlayState() {return this.playState;}
+   public int getPauseState() {return this.pauseState;}
+   public int getDialogueState() {return this.dialogueState;}
+   public int getTileSize() {return tileSize;}
+   public int getScreenWidth() { return screenWidth;}
+   public int getScreenHeight() {return screenHeight;}
+   public int getScale() {return scale;}
+   public int getMaxScreenCol() {return maxScreenCol;}
+   public int getMaxScreenRow() {return maxScreenRow;}
+   public int getMaxWorldCol() { return maxWorldCol;}
+   public int getWorldWidth() {return worldWidth;}
+   public int getMaxWorldRow() {return maxWorldRow;}
+   public int getWorldHeight() {return worldHeight;}
+   public int getPlayerX() {return this.player.x;}
+   public int getPlayerY() {return this.player.y;}
+   public int getPlayerScreenX() {return this.player.getScreenX();}
+   public int getPlayerScreenY() {return this.player.getScreenY();}
+   public int getStrength() {return this.player.getStrength();}
+   public int[][] getMapTile() {return this.tile.getMapTile();}
+   public int[][] getMapTile2() {return this.tile.getMapTile2();}
+   public int[][] getOverLay() {return this.tile.getOverLay();}
+   public int[][] getOverLay2() {return this.tile.getOverLay2();}
 
    public Tile[] getTile() {
       return this.tile.getTile();
@@ -219,7 +170,7 @@ public class GamePanel extends JPanel implements Runnable {
       return this.tile.getExactTile(index);
    }
 
-   public SuperObj getObj(int index) {
+   public Entity getObj(int index) {
       return this.obj[index];
    }
 
@@ -235,7 +186,7 @@ public class GamePanel extends JPanel implements Runnable {
       return this.npc[i];
    }
 
-   public void setObj(SuperObj obj, int index) {
+   public void setObj(Entity obj, int index) {
       this.obj[index] = obj;
    }
 
@@ -247,14 +198,11 @@ public class GamePanel extends JPanel implements Runnable {
       return this.ui;
    }
 
-   public Entity[] getNPC() {
-      return this.npc;
-   }
-
-   public Entity getExactNPC(int index) {
-      return this.npc[index];
-   }
-
+   public Entity[] getNPC() { return this.npc; }
+   public Entity[] getMonster() { return monster; }
+   public Entity getExactNPC(int index) { return this.npc[index]; }
+   public Entity getExactMonster(int index) {return monster[index];}
+   public void setExactMonster(int i,Entity newMonster){monster[i]=newMonster;}
    public Player getPlayer() {
       return this.player;
    }
@@ -274,12 +222,15 @@ public class GamePanel extends JPanel implements Runnable {
    public void setDebug(boolean debug) {
       this.debug = debug;
    }
+   public Event getEvent(){return event;}
+   public void setEvent(Event event){this.event=event;}
 
    public void setupGame() {
-      this.setObjects();
-      this.setNPC();
-      this.playMusic(0);
-      this.gameState = this.titleState;
+      setObjects();
+      setNPC();
+      setMonster();
+      //playMusic(0);
+      gameState = this.titleState;
    }
 
    public void startGameThread() {
@@ -331,10 +282,10 @@ public class GamePanel extends JPanel implements Runnable {
    public void update() {
       if (this.gameState == this.playState) {
          this.player.update();
-
-         for(int i = 0; i < this.npc.length; ++i) {
-            if (this.npc[i] != null) {
-               this.npc[i].update();
+         for(int i = 0; i < npc.length; ++i) {if (npc[i] != null) {npc[i].update();}}
+         for(int i = 0; i < monster.length; ++i) {if (monster[i] != null){
+            if(monster[i].getAlive()&&monster[i].getDying()==false) monster[i].update();
+            if(monster[i].getAlive()==false ) monster[i]=null;
             }
          }
       }
@@ -348,7 +299,7 @@ public class GamePanel extends JPanel implements Runnable {
 
    public void paintComponent(Graphics g) {
       super.paintComponent(g);
-      Graphics2D g2 = (Graphics2D)g;
+      g2 = (Graphics2D)g;
       long drawStart = 0L;
       drawStart = System.nanoTime();
       if (this.gameState == this.titleState) {
@@ -357,40 +308,76 @@ public class GamePanel extends JPanel implements Runnable {
       else {
          g2.setColor(Color.black);
          g2.fillRect(0, 0, this.getWidth(), this.getHeight());
+         // if (this.key.leftPressed && this.key.downPressed) {
+         //    this.tile.draw3(g2, this.tile.getMapTile());
+         //    this.tile.draw3(g2, this.tile.getOverLay());
+         // } else if (this.key.rightPressed && this.key.upPressed) {
+         //    this.tile.draw4(g2, this.tile.getMapTile());
+         //    this.tile.draw4(g2, this.tile.getOverLay());
+         // } else if (!this.key.rightPressed && !this.key.downPressed) {
+         //    this.tile.draw2(g2, this.tile.getMapTile());
+         //    this.tile.draw2(g2, this.tile.getOverLay());
+         // } else {
+         //    this.tile.draw1(g2, this.tile.getMapTile());
+         //    this.tile.draw1(g2, this.tile.getOverLay());
+         // }
          if (this.key.leftPressed && this.key.downPressed) {
-            this.tile.draw3(g2, this.tile.getMapTile());
-            this.tile.draw3(g2, this.tile.getOverLay());
+            this.tile.draw3(g2, this.tile.getMapTile2());
+            this.tile.draw3(g2, this.tile.getOverLay2());
          } else if (this.key.rightPressed && this.key.upPressed) {
-            this.tile.draw4(g2, this.tile.getMapTile());
-            this.tile.draw4(g2, this.tile.getOverLay());
+            this.tile.draw4(g2, this.tile.getMapTile2());
+            this.tile.draw4(g2, this.tile.getOverLay2());
          } else if (!this.key.rightPressed && !this.key.downPressed) {
-            this.tile.draw2(g2, this.tile.getMapTile());
-            this.tile.draw2(g2, this.tile.getOverLay());
+            this.tile.draw2(g2, this.tile.getMapTile2());
+            this.tile.draw2(g2, this.tile.getOverLay2());
          } else {
-            this.tile.draw1(g2, this.tile.getMapTile());
-            this.tile.draw1(g2, this.tile.getOverLay());
+            this.tile.draw1(g2, this.tile.getMapTile2());
+            this.tile.draw1(g2, this.tile.getOverLay2());
          }
 
-         int i;
-         for(i = 0; i < this.obj.length; ++i) {
-            if (this.obj[i] != null) {
-               this.obj[i].draw(g2, this);
+         entityList.add(player);
+         //ADD EVERY ENTITIES(obj included) TO AN ARRAYLIST
+         int normalY = player.getY();
+         player.setY(player.getY()+20);
+         for(i=0;i<npc.length;i++){ if(npc[i]!=null) entityList.add(npc[i]);}
+         for(i=0;i<obj.length;i++){ if(obj[i]!=null) entityList.add(obj[i]);}
+         for(i=0;i<monster.length;i++){ if(monster[i]!=null) entityList.add(monster[i]);}
+         Collections.sort(entityList, new Comparator<Entity>() {
+            @Override
+            public int compare(Entity e1, Entity e2) {
+               return Integer.compare(e1.y, e2.y);
             }
-         }
+         });//sort by Y(increasing)(index 0 is the has the smallest Y)
+         player.setY(normalY);
+         for(i=0;i<entityList.size();i++){entityList.get(i).draw(g2);}//DRAW 1 BY 1 FOLLOWING THE ORDER
+         entityList.clear();//REMOVE EVERYTHING
+         // for(i = 0; i < this.obj.length; ++i) {
+         //    if (this.obj[i] != null) {
+         //       this.obj[i].draw(g2);
+         //    }
+         // }
 
-         for(i = 0; i < this.npc.length; ++i) {
-            if (this.npc[i] != null) {
-               this.npc[i].draw(g2);
-            }
-         }
-
-         this.player.draw(g2);
+         // for(i = 0; i < this.npc.length; ++i) {
+         //    if (this.npc[i] != null) {
+         //       this.npc[i].draw(g2);
+         //    }
+         // }
          if (this.debug) {
+            event.debug(g2);
             this.player.debug(g2);
-
             for(i = 0; i < this.npc.length; ++i) {
                if (this.npc[i] != null) {
                   this.npc[i].debug(g2);
+               }
+            }
+            for(i=0;i<obj.length;i++){
+               if (this.obj[i] != null) {
+                  this.obj[i].debug(g2);
+               }
+            }
+            for(i=0;i<monster.length;i++){
+               if (this.monster[i] != null) {
+                  this.monster[i].debug(g2);
                }
             }
          }

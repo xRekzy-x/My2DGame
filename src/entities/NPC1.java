@@ -17,12 +17,13 @@ public class NPC1 extends Entity {
     public NPC1(GamePanel gp){
         super(gp);
         direction="sdown";
-        speed=1;
-        getImage();
+        super.setSpeed(1);
+        super.setType(2);
+        addImage();
         setDialogue(); 
     }
     
-    public void getImage(){
+    public void addImage(){
         // down1 = setup("/skeleton/down1"); 
         // down2 = setup("/skeleton/down2");
         // down3 = setup("/skeleton/down3");
@@ -100,10 +101,10 @@ public class NPC1 extends Entity {
         //int check = gp.getColCheckEntity(this, new Entity[]{gp.getPlayer()});
         if(collisionOn==false){
             switch(direction){
-                case "up": y-=speed; break;
-                case "down": y+=speed; break;
-                case "right":x+=speed; break;
-                case "left": x-=speed; break;
+                case "up": y-=getSpeed(); break;
+                case "down": y+=getSpeed(); break;
+                case "right":x+=getSpeed(); break;
+                case "left": x-=getSpeed(); break;
             } 
         spriteCounter++;
         if(spriteCounter>10){
@@ -116,7 +117,7 @@ public class NPC1 extends Entity {
     public void setDialogue(){
         gp.getui().setDialogue(0, "Bye bye nick ga");
         gp.getui().setDialogue(1, "kkkkkkkkkkkkkkkkk");
-        gp.getui().setDialogue(2, "Để mà noi thi me may rat \nla beo do kkkk");
+        gp.getui().setDialogue(2, "De ma noi thi me may rat \nla beo do kkkk");
     }
    
 }

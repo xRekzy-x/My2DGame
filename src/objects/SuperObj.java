@@ -7,31 +7,27 @@ import java.awt.image.BufferedImage;
 import main.GamePanel;
 
 public class SuperObj {
-    private BufferedImage image;
+    private BufferedImage image,image2,image3,image4,image5;
     private String name;
     private boolean collision = false;
     private int x,y;
     private Rectangle solidArea= new Rectangle(0,0,48,48);
     private int defaultSolidAreaX=0;
     private int defaultSolidAreaY=0;
-    public BufferedImage getImage(){
-        return image;
-    }
-    public void setImage(BufferedImage image){
-        this.image=image;
-    }
-    public String getName(){
-        return name;
-    }
-    public void setName(String name){
-        this.name=name;
-    }
-    public boolean getCollision(){
-        return collision;
-    }
-    public void setCollision(boolean collision){
-        this.collision=collision;
-    }
+    public BufferedImage getImage(){return image;}
+    public BufferedImage getImage2(){return image2;}
+    public BufferedImage getImage3(){return image3;}
+    public BufferedImage getImage4(){return image4;}
+    public BufferedImage getImage5(){return image5;}
+    public void setImage(BufferedImage image){this.image=image;}
+    public void setImage2(BufferedImage image){this.image2=image;}
+    public void setImage3(BufferedImage image){this.image3=image;}
+    public void setImage4(BufferedImage image){this.image4=image;}
+    public void setImage5(BufferedImage image){this.image5=image;}
+    public String getName(){return name;}
+    public void setName(String name){this.name=name;}
+    public boolean getCollision(){return collision;}
+    public void setCollision(boolean collision){this.collision=collision;}
     public Rectangle getSolidArea(){return solidArea;}
     public int getSolidAreaX(){ return solidArea.x;}
     public int getSolidAreaY(){ return solidArea.y;}

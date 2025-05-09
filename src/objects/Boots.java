@@ -1,15 +1,25 @@
 package objects;
 
+import java.awt.Rectangle;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-public class Boots extends SuperObj {
-    public Boots(){
+import entities.Entity;
+import main.GamePanel;
+
+public class Boots extends Entity {
+    public Boots(GamePanel gp){
+        super(gp);
+        super.setSolidArea(new Rectangle(0,0,48,48));
+        super.setSolidAreaDefaultX(0);
+        super.setSolidAreaDefaultY(0);
+      
         super.setName("Boots");
-        try{
-            super.setImage(ImageIO.read(getClass().getResourceAsStream("/res/obj/boots.png")));
-        }catch(IOException e){ e.printStackTrace(); }
+        setSdown1( setup("/obj/boots",1));
+        // try{
+        //     super.setImage(ImageIO.read(getClass().getResourceAsStream("/res/obj/boots.png")));
+        // }catch(IOException e){ e.printStackTrace(); }
     }
     
 }

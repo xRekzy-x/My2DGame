@@ -16,20 +16,20 @@ public class ImageModification {
             // BufferedImage spriteSheet =
             // ImageIO.read(getClass().getClassLoader().getResourceAsStream("res/player/Walk.png"));
             BufferedImage spriteSheet = ImageIO.read(new File(
-                    "C:/Users/rosto/practice/tutorial/loopex/javalab/My2DGame/My2DGame/src/res/NPC1/NPC.png"));
+                    "C:/Users/rosto/practice/tutorial/loopex/javalab/My2DGame/src/res/monster/Slime.png"));
 
             // Define the crop area (x, y, width, height)
             // Adjust based on the sprite position
 
-            int width = 24; // Width of a single sprite
-            int height =24; // Height of a single sprite
+            int width = 32; // Width of a single sprite
+            int height = 32; // Height of a single sprite
 
             // Crop the image
             BufferedImage croppedImage = spriteSheet.getSubimage(x, y, width, height);
 
             // Save the cropped image
 
-            File outputFile = new File("src/res/NPC1/" + fileName + ".png");
+            File outputFile = new File("res/monster/" + fileName + ".png");
             outputFile.getParentFile().mkdirs(); // Create directories if missing
             ImageIO.write(croppedImage, "png", outputFile);
 
@@ -107,8 +107,8 @@ public class ImageModification {
     
     public void ImageOverlay(String under, String top, String result) throws IOException {
         // Load the background and overlay images
-        BufferedImage background = ImageIO.read(new File("src/res/tile/" + under + ".png"));
-        BufferedImage overlay = ImageIO.read(new File("src/res/tile/" + top + ".png"));
+        BufferedImage background = ImageIO.read(new File("res/player/" + under + ".png"));
+        BufferedImage overlay = ImageIO.read(new File("res/player/" + top + ".png"));
     
         // Scale the overlay image
         Image tempOverlay = overlay.getScaledInstance(16, 16, Image.SCALE_SMOOTH);
@@ -130,7 +130,7 @@ public class ImageModification {
         g.dispose();
     
         // Save the final combined image
-        ImageIO.write(scaledBackground, "png", new File("src/res/tile/" + result + ".png"));
+        ImageIO.write(scaledBackground, "png", new File("res/player/" + result + ".png"));
         System.out.println("Ghép ảnh thành công!");
     }
     public BufferedImage scaleImage(BufferedImage original,int height,int width){
@@ -139,7 +139,6 @@ public class ImageModification {
             store.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
             store.drawImage(original,0,0,width,height,null);//draw it
             store.dispose();
-
             return scaledImage;
     }   
 }

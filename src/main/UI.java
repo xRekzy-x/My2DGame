@@ -7,6 +7,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
+import objects.Heart;
 import objects.StrengPotion;
 import main.ImageModification;
 
@@ -17,7 +18,7 @@ public class UI {
     Font arial_20I;
     Font russo_one_45B;
     ImageModification mod = new ImageModification();
-    StrengPotion strengPotion = new StrengPotion();
+
     BufferedImage strengthPotImage;
     private boolean messageOn=false;
     private String message="";
@@ -26,16 +27,28 @@ public class UI {
     private String currentDialogue="";
     private int commandNumber =0;
     private String dialogues[] = new String[20];
+    private BufferedImage heart1,heart2,heart3,heart4,heart5;
+    private Heart heart;
+    StrengPotion strengPotion; 
+
     public UI(GamePanel gp){
         this.gp=gp;
+        strengPotion = new StrengPotion(gp);
         arial_40=new Font("Arial",Font.PLAIN,40);
         arial_20I=new Font("Arial",Font.ITALIC,20);
         russo_one_45B=new Font("Russo one",Font.BOLD,45);
 
         strengthPotImage= strengPotion.getImage();
         strengthPotImage = mod.scaleImage(strengthPotImage, 40, 40);
+        heart = new Heart(gp);
+        heart1 = heart.getHeart1();
+        heart2 = heart.getHeart2();
+        heart3 = heart.getHeart3();
+        heart4 = heart.getHeart4();
+        heart5 = heart.getHeart5();
         
     }
+
     //GETTER SETTER
     public void setDialogue(int index,String text){
         this.dialogues[index]=text;
@@ -75,6 +88,7 @@ public class UI {
             g2.drawString(" : "+gp.getStrength(), 74, 100);
             g2.drawString("X: "+gp.getPlayerX()/gp.getTileSize(),74,140);
             g2.drawString("Y: "+gp.getPlayerY()/gp.getTileSize(),170,140);
+            drawPlayerLife();
             if(messageOn==true){
                 g2.setFont(g2.getFont().deriveFont(30));
                 g2.drawString(message, gp.getScreenWidth()/2+48 ,gp.getScreenHeight()/2);
@@ -86,9 +100,11 @@ public class UI {
             }
         }
         if(gp.getGameState()==gp.getPauseState()){
+            drawPlayerLife();
             drawPauseScreen();
         }
         if(gp.getGameState()==gp.getDialogueState()){
+            drawPlayerLife();
             drawDialogueScreen(g2);
         }
         if(gp.getGameState()==gp.getTitleState()){
@@ -169,5 +185,29 @@ public class UI {
         y+=45;
         g2.drawString(text,x,y);
         if(commandNumber==2){g2.drawString(">", x-gp.getTileSize(), y-5);}
+    }
+    public void drawPlayerLife(){
+        int x = gp.getTileSize()/2;
+        int y = gp.getTileSize()/2;
+        int count = 0;
+        while(count<gp.getPlayer().getMaxLife()/4){
+            g2.drawImage(heart5, x, y,null);
+            count++;
+            x+= gp.getTileSize()+10;
+        }
+        x = gp.getTileSize()/2;
+        y = gp.getTileSize()/2;
+        count = 0;
+        while(count<gp.getPlayer().getLife()){
+            g2.drawImage(heart4, x, y,null);
+            count++;
+            if(count<gp.getPlayer().getLife()) g2.drawImage(heart3, x, y,null);
+            count++;
+            if(count<gp.getPlayer().getLife()) g2.drawImage(heart2, x, y,null);
+            count++;
+            if(count<gp.getPlayer().getLife()) g2.drawImage(heart1, x, y,null);
+            count++;
+            x+= gp.getTileSize()+10;
+        }
     }
 }

@@ -18,17 +18,25 @@ public class TileManager {
     private int mapTile[][];
     private int overlay[][];
 
+    private int mapTile2[][];
+    private int overlay2[][];
+
     public TileManager(GamePanel gp) {
         this.gp = gp;
-        tile = new Tile[50];
+        tile = new Tile[100];
         getTileImage();
 
         mapTile = new int[gp.getMaxWorldRow()][gp.getMaxWorldCol()];// row-col
         overlay = new int[gp.getMaxWorldRow()][gp.getMaxWorldCol()];
 
+        mapTile2 = new int[20][25];// row-col
+        overlay2 = new int[20][25];
+
         loadmap("/res/map/map1.txt", mapTile);
         loadmap("/res/map/map2.txt", overlay);
-
+        
+        loadmap("/res/map/map5.txt", mapTile2);
+        loadmap("/res/map/map6.txt", overlay2);
     }
 
     public void setUp(int index, String imageName, boolean collision) {
@@ -77,7 +85,35 @@ public class TileManager {
         setUp(30, "fenceBottom", true);
         setUp(31, "fenceLeft", true);
         setUp(32, "fenceRight", true);
-
+        setUp(33, "water_hole1", true);
+        setUp(34, "water_hole2", true);
+        setUp(35, "water_hole3", true);
+        setUp(36, "water_hole4", true);
+        setUp(37, "water_hole5", true);
+        setUp(38, "water_hole6", true);
+        setUp(39, "water_hole7", true);
+        setUp(40, "water_hole8", true);
+        setUp(41, "water_hole9", true);
+        setUp(42, "tile_0_3", true);
+        setUp(43, "cayhoatrang", true);
+        setUp(44, "cay_blue_top", true);
+        setUp(45, "cay_blue_bottom", true);
+        setUp(46, "cay_green_top", true);
+        setUp(47, "cay_green_bottom", true);
+        setUp(48, "cay_orange_top", true);
+        setUp(49, "cay_orange_bottom", true);
+        setUp(50, "cay_xanhdam_top", true);
+        setUp(51, "cay_xanhdam_bottom", true);
+        setUp(52, "goc_cay_bi_chat", true);
+        setUp(53, "flower_red", true);
+        setUp(54, "bluetreeNW_top", true);
+        setUp(55, "bluetreeNE_top", true);
+        setUp(56, "bluetreeSW_bottom", true);
+        setUp(57, "bluetreeSE_bottom", true);
+        setUp(58, "greentreeNW_top", true);
+        setUp(59, "greentreeNE_top", true);
+        setUp(60, "greentreeSW_bottom", true);
+        setUp(61, "greentreeSE_bottom", true);
     }
 
     public void loadmap(String filepath, int mapTile[][]) {
@@ -117,7 +153,6 @@ public class TileManager {
                 worldY = i * tileSize;
                 screenX = (int)(worldX - gp.getPlayerX() + gp.getPlayerScreenX());
                 screenY = (int) (worldY - gp.getPlayerY() + gp.getPlayerScreenY());
-
                 /*
                  * giải thích 2 dòng trên: player đang ở vị trí random thì mình cho
                  * player về góc trái trên cùng của màn hình rồi sau đó +screenX screenY
@@ -234,5 +269,7 @@ public class TileManager {
     public Tile getExactTile(int index) {
         return tile[index];
     }
+    public int[][] getMapTile2(){ return mapTile2; }
+    public int[][] getOverLay2(){ return overlay2; }
 
 }

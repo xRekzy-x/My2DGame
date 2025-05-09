@@ -7,7 +7,7 @@ public class GamePlay {
     public static void main(String[] args) {
         JFrame window = new JFrame();
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);// this lets the window properly close when user clicks
-                                                              // the button X
+                                                              // the button X 
         window.setResizable(false);
         window.setTitle("jav game");
 
@@ -20,9 +20,6 @@ public class GamePlay {
 
 
         gamepanel.setupGame();//prepare the setup for the game 
-        gamepanel.startGameThread();//run game
-
-
-       
+        gamepanel.startGameThread();//run game 
     }
 }

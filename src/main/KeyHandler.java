@@ -9,7 +9,7 @@ public class KeyHandler implements KeyListener {
    public boolean leftPressed;
    public boolean rightPressed;
    public boolean zPressed = false;
-   public boolean enterPressed;
+   public boolean enterPressed=false;
    GamePanel gp;
 
    public KeyHandler(GamePanel gp) {
@@ -65,11 +65,10 @@ public class KeyHandler implements KeyListener {
          }
       }
 
-      if (this.gp.getGameState() == this.gp.getPlayState()) {
+      else if (this.gp.getGameState() == this.gp.getPlayState()) {
          if (code == KeyEvent.VK_W) {
             this.upPressed = true;
          }
-
          if (code == KeyEvent.VK_S) {
             this.downPressed = true;
          }
@@ -90,18 +89,21 @@ public class KeyHandler implements KeyListener {
             this.zPressed = true;
          }
 
-         if (code == 112) {
+         if (code == KeyEvent.VK_F1) {
             if (this.gp.getDebug()) {
                this.gp.setDebug(false);
             } else {
                this.gp.setDebug(true);
             }
          }
-
-         if (code == 10) {
-            this.enterPressed = true;
+         if (code == KeyEvent.VK_ENTER) {
+            enterPressed=true;
          }
-      } else if (this.gp.getGameState() == this.gp.getPauseState()) {
+         if (code == KeyEvent.VK_R){
+            gp.getPlayer().setAttacking(true);
+         }
+      } 
+      else if (this.gp.getGameState() == this.gp.getPauseState()) {
          if (code == 80) {
             this.gp.setGameState(this.gp.getPlayState());
          }
@@ -110,7 +112,7 @@ public class KeyHandler implements KeyListener {
             this.gp.setGameState(this.gp.getPlayState());
          }
 
-         if (code == 10) {
+         if (code == KeyEvent.VK_ENTER) {
             this.enterPressed = true;
          }
       }
