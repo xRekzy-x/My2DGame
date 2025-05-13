@@ -15,13 +15,22 @@ public class Slime extends Entity {
     public Slime(GamePanel gp) {
         super(gp);
         super.setName("Slime");
-        super.setSpeed(1);
-        super.setMaxLife(3);
-        super.setLife(getMaxLife());
+
+        //SET SOLIDAREA
         super.setSolidArea(new Rectangle(32, 32, 32, 24));
         this.setSolidAreaDefaultX(this.getSolidAreaX());
         this.setSolidAreaDefaultY(this.getSolidAreaY());
+
+        //SET BASIC INFORMATION
+        super.setDamage(3);
+        super.setSpeed(1);
+        super.setMaxLife(50);
+        super.setLife(getMaxLife());
+        
+        //SETTING
         super.setType(3);
+        super.setFrame(9);
+        super.setTransitionTime(5);
         addImage();
     }
 
@@ -78,18 +87,10 @@ public class Slime extends Entity {
         if (this.TimeToChangeDirection == 120) {
             int i = random.nextInt(4) + 1;
             switch (i) {
-                case 1:
-                    this.direction = "up";
-                    break;
-                case 2:
-                    this.direction = "down";
-                    break;
-                case 3:
-                    this.direction = "left";
-                    break;
-                case 4:
-                    this.direction = "right";
-                    break;
+                case 1: direction = "up"; break;
+                case 2: direction = "down"; break;
+                case 3: direction = "left";break;
+                case 4: direction = "right"; break;
                 // case 5:
                 // if (this.direction == "down") {this.direction = "sdown";}
                 // if (this.direction == "up") {this.direction = "sup";}
@@ -100,135 +101,12 @@ public class Slime extends Entity {
             TimeToChangeDirection = 0;
         }
     }
-
-    public void update() {
-       super.update();
-        spriteCounter++;
-        if (spriteCounter > 5) {
-            if (spriteNum == 1)
-                spriteNum = 2;
-            else if (spriteNum == 2)
-                spriteNum = 3;
-            else if (spriteNum == 3)
-                spriteNum = 4;
-            else if (spriteNum == 4)
-                spriteNum = 5;
-            else if (spriteNum == 5)
-                spriteNum = 6;
-            else if (spriteNum == 6)
-                spriteNum = 7;
-            else if (spriteNum == 7)
-                spriteNum = 8;
-            else if (spriteNum == 8)
-                spriteNum = 9;
-            else if (spriteNum == 9)
-                spriteNum = 1;
-            spriteCounter = 0;
-        }
+    public void damageReaction(){
+        TimeToChangeDirection=0;
+        if(gp.getPlayer().getDirection()=="sdown") direction = "down";
+        if(gp.getPlayer().getDirection()=="sup") direction = "up";
+        if(gp.getPlayer().getDirection()=="sleft") direction = "left";
+        if(gp.getPlayer().getDirection()=="sright") direction = "right";
+        System.out.println(direction);
     }
-    // @Override
-    // public void draw(Graphics2D g2) {
-    //     BufferedImage image = null;
-    //     switch (direction) {
-    //         case "up":
-    //             if (spriteNum == 1) {
-    //                 image = up1;
-    //             } else if (spriteNum == 2) {
-    //                 image = up2;
-    //             } else if (spriteNum == 3) {
-    //                 image = up3;
-    //             } else if (spriteNum == 4) {
-    //                 image = up4;
-    //             } else if (spriteNum == 5) {
-    //                 image = up5;
-    //             } else if (spriteNum == 6) {
-    //                 image = up6;
-    //             } else if (spriteNum == 7) {
-    //                 image = up7;
-    //             } else if (spriteNum == 8) {
-    //                 image = up8;
-    //             } else if (spriteNum == 9) {
-    //                 image = up9;
-    //             } else if (spriteNum == 10) {
-    //                 image = up10;
-    //             }
-    //             break;
-    //         case "down":
-    //             if (spriteNum == 1) {
-    //                 image = down1;
-    //             } else if (spriteNum == 2) {
-    //                 image = down2;
-    //             } else if (spriteNum == 3) {
-    //                 image = down3;
-    //             } else if (spriteNum == 4) {
-    //                 image = down4;
-    //             } else if (spriteNum == 5) {
-    //                 image = down5;
-    //             } else if (spriteNum == 6) {
-    //                 image = down6;
-    //             } else if (spriteNum == 7) {
-    //                 image = down7;
-    //             } else if (spriteNum == 8) {
-    //                 image = down8;
-    //             } else if (spriteNum == 9) {
-    //                 image = down9;
-    //             } else if (spriteNum == 10) {
-    //                 image = down10;
-    //             }
-    //             break;
-    //         case "right":
-    //             if (spriteNum == 1) {
-    //                 image = right1;
-    //             } else if (spriteNum == 2) {
-    //                 image = right2;
-    //             } else if (spriteNum == 3) {
-    //                 image = right3;
-    //             } else if (spriteNum == 4) {
-    //                 image = right4;
-    //             } else if (spriteNum == 5) {
-    //                 image = right5;
-    //             } else if (spriteNum == 6) {
-    //                 image = right6;
-    //             } else if (spriteNum == 7) {
-    //                 image = right7;
-    //             } else if (spriteNum == 8) {
-    //                 image = right8;
-    //             } else if (spriteNum == 9) {
-    //                 image = right9;
-    //             } else if (spriteNum == 10) {
-    //                 image = right10;
-    //             }
-    //             break;
-    //         case "left":
-    //             if (spriteNum == 1) {
-    //                 image = left1;
-    //             } else if (spriteNum == 2) {
-    //                 image = left2;
-    //             } else if (spriteNum == 3) {
-    //                 image = left3;
-    //             } else if (spriteNum == 4) {
-    //                 image = left4;
-    //             } else if (spriteNum == 5) {
-    //                 image = left5;
-    //             } else if (spriteNum == 6) {
-    //                 image = left6;
-    //             } else if (spriteNum == 7) {
-    //                 image = left7;
-    //             } else if (spriteNum == 8) {
-    //                 image = left8;
-    //             } else if (spriteNum == 9) {
-    //                 image = left9;
-    //             } else if (spriteNum == 10) {
-    //                 image = left10;
-    //             }
-    //             break;
-    //     }
-    //     if (getDying()) {
-    //         dyingAnimation(g2);
-    //     } 
-    //     Transparency(g2, 0F);
-    //     g2.drawImage(image, x - gp.getPlayerX() + gp.getPlayerScreenX(), (y - gp.getPlayerY() + gp.getPlayerScreenY()),
-    //             null);
-    //     // g2.drawImage(image, screenX, screenY, null);
-    // }
 }

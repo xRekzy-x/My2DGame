@@ -149,7 +149,6 @@ public class CollisionChecker {
             target[i].setSolidAreaY(target[i].getSolidAreaDefaultY());
          }
       }
-
       return index;
    }
    public boolean checkPlayer(Entity entity) {

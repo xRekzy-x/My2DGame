@@ -3,7 +3,7 @@ package main;
 import entities.Entity;
 import entities.NPC1;
 import entities.Player;
-import entities.skeleton;
+import monster.skeleton;
 import monster.Slime;
 
 import java.awt.Color;
@@ -21,6 +21,7 @@ import objects.Chest;
 import objects.Key;
 import objects.StrengPotion;
 import objects.SuperObj;
+import objects.UltraSword;
 import tile.Tile;
 import tile.TileManager;
 
@@ -69,6 +70,7 @@ public class GamePanel extends JPanel implements Runnable {
    private int playState=1;
    private int pauseState=2;
    private int dialogueState=3;
+   private int characterState=4;
 
    //EVENT
    private Event event = new Event(this);
@@ -90,6 +92,7 @@ public class GamePanel extends JPanel implements Runnable {
       this.setDoubleBuffered(true);
       this.addKeyListener(this.key);
       this.setFocusable(true);
+      this.setFocusTraversalKeysEnabled(false);
    }
    //GET COLLISION CHECK
    public void getColCheckTile(Entity entity) {colCheck.checkTile(entity);}
@@ -117,6 +120,21 @@ public class GamePanel extends JPanel implements Runnable {
       this.obj[5] = new StrengPotion(this);
       this.obj[5].setX(768);
       this.obj[5].setY(576);
+      // this.obj[6] = new UltraSword(this);
+      // this.obj[6].setX(tileSize*5);
+      // this.obj[6].setY(tileSize*3);
+      //7 đã có
+   }
+   public void setObj(Entity obj,int x, int y){
+      int index=0;
+      for(int i=0;i<this.obj.length;i++){
+         if(this.obj[i]==null){
+            index=i;
+         }
+      }
+      this.obj[index] = obj;
+      this.obj[index].setX(tileSize*x);
+      this.obj[index].setY(tileSize*y);
    }
    public void setNPC() {
       this.npc[1] = new NPC1(this);
@@ -142,6 +160,7 @@ public class GamePanel extends JPanel implements Runnable {
    public int getPlayState() {return this.playState;}
    public int getPauseState() {return this.pauseState;}
    public int getDialogueState() {return this.dialogueState;}
+   public int getCharacterState(){return characterState;}
    public int getTileSize() {return tileSize;}
    public int getScreenWidth() { return screenWidth;}
    public int getScreenHeight() {return screenHeight;}
@@ -229,7 +248,7 @@ public class GamePanel extends JPanel implements Runnable {
       setObjects();
       setNPC();
       setMonster();
-      //playMusic(0);
+      playMusic(0);
       gameState = this.titleState;
    }
 

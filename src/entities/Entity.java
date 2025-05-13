@@ -20,16 +20,37 @@ public class Entity {
     protected GamePanel gp;
     private UI ui;
     public int x, y;
+    //INFORMATION OF THE CHARACTER
+    private int maxLife,life;
     private int speed;
-
+    private int damage;
+    private int def;//defence without shield
+    private int defense;
+    private int exp;
+    private int level;
+    private int nextLevelExp;
+    private int strength;
+    private int coin;
+    private Entity currentWeapon;
+    private Entity currentShield;
+    //INFORMATION OF THE ITEM
+    private int attackValue;
+    private int defenseValue;
+    private String name;
+    private String description="";
+    //IMAGE
+    private double width=1;
+    private double height=1;
+    private int frame = 0;
+    private int transitionTime=5;
     public BufferedImage up1, up2, up3, up4, up5, up6,up7,up8,up9,up10,
             down1, down2, down3, down4, down5, down6,down7,down8,down9,down10,
             right1, right2, right3, right4, right5, right6,right7,right8,right9,right10,
             left1, left2, left3, left4, left5, left6,left7,left8,left9,left10,
-            sdown1, sdown2, sdown3, sdown4, sdown5, sdown6,
-            sup1, sup2, sup3, sup4, sup5, sup6,
-            sright1, sright2, sright3, sright4, sright5, sright6,
-            sleft1, sleft2, sleft3, sleft4, sleft5, sleft6,
+            sdown1, sdown2, sdown3, sdown4, sdown5, sdown6,sdown7,sdown8,sdown9,sdown10,
+            sup1, sup2, sup3, sup4, sup5, sup6,sup7,sup8,sup9,sup10,
+            sright1, sright2, sright3, sright4, sright5, sright6,sright7,sright8,sright9,sright10,
+            sleft1, sleft2, sleft3, sleft4, sleft5, sleft6,sleft7,sleft8,sleft9,sleft10,
             adown1,adown2,adown3,adown4,adown5,adown6,adown7,adown8,adown9,adown10,
             aup1,aup2,aup3,aup4,aup5,aup6,aup7,aup8,aup9,aup10,
             aleft1,aleft2,aleft3,aleft4,aleft5,aleft6,aleft7,aleft8,aleft9,aleft10,
@@ -38,24 +59,29 @@ public class Entity {
     
     private Rectangle solidArea = new Rectangle(24, 32, 64, 64);
     private Rectangle triggleInteract = new Rectangle(-50, 0, 192, 192);
-    private Rectangle attackingArea = new Rectangle(0,0,24,24);
+    private Rectangle attackingArea = new Rectangle(0,0,48,48);
     public int solidAreaDefaultX, solidAreaDefaultY, triggerInteractDefaultX, triggerInteractDefaultY;
     private int dialogueIndex = 0;
 
     protected boolean collisionOn = false;
     private BufferedImage image,image2,image3,image4,image5;
-    private String name;
+    
     //STATUS
     private boolean collision = false;
     private boolean invincible = false;
     private int invincibleCounter=0;
-    private int type;//player =1, npc=2, monster =3;
+    //TYPES
+    private int type;//player =1, npc=2, monster =3, sword=4,shield=5,consumable=6;
+    private int playerType=1;
+    private int npcType=2;
+    private int monsterType=3;
+    private int swordType=4;
+    private int shieldType=5;
+    private int consumableType=6;
     private boolean attacking = false;
     private boolean alive = true;
     private boolean dying = false;
     private boolean HPbar = false;
-    //CHARACTER STATUS
-    private int maxLife,life;
     //COUNTER
     private int dyingCounter=0;
     public int spriteCounter = 0;
@@ -85,6 +111,18 @@ public class Entity {
         }
         return image;
     }
+    public BufferedImage setup(String path,double width,double height) {
+        BufferedImage image = null;
+        ImageModification mod = new ImageModification();
+        try {
+            image = ImageIO.read(getClass().getResourceAsStream("/res" + path + ".png"));
+            image = mod.scaleImage(image, (int)(gp.getTileSize()*height),(int)(gp.getTileSize()*width));
+        } catch (Exception e) {
+            System.out.println("EXCEPTION while loading: " + path + ".png");
+            e.printStackTrace();
+        }
+        return image;
+    }
     //public int getDialogueIndex(){return dialogueIndex;}
     public BufferedImage getSdown1(){return sdown1;}
     public void setSdown1(BufferedImage sdown1){this.sdown1=sdown1;}
@@ -102,6 +140,8 @@ public class Entity {
     public int getAttackY(){return y;}
     public String getName(){return name;}
     public void setName(String name){this.name=name;}
+    public String getDescription(){return description;}
+    public void setDescription(String description){this.description=description;}
     public boolean getCollision(){return collision;}
     public void setCollision(boolean collision){this.collision=collision;}
     public Rectangle getSolidArea() {return solidArea;}
@@ -191,13 +231,60 @@ public class Entity {
     public void setInvincibleCounter(int invincibleCounter){this.invincibleCounter=invincibleCounter;}
     public int getType(){return type;}
     public void setType(int type){ this.type = type;}
+    public int getPlayerType() {return playerType;}
+    public int getNpcType() {return npcType;}
+    public int getMonsterType() {return monsterType;}
+    public int getSwordType() {return swordType;}
+    public int getShieldType() {return shieldType;}
+    public int getConsumableType(){return consumableType;}
     public boolean getAttacking(){return attacking;}
     public void setAttacking(boolean attacking){this.attacking=attacking;}
     public boolean getAlive(){return alive;}
     public boolean getDying(){return dying;}
     public void setAlive(boolean alive){this.alive = alive;}
     public void setDying(boolean dying){this.dying = dying;}
+    public int getDamage(){return damage;}
+    public void setDamage(int damage){this.damage=damage;}
+    public int getFrame(){return frame;}
+    public void setFrame(int frame){this.frame=frame;}
+    public int getTransitionTime(){return transitionTime;}
+    public void setTransitionTime(int transitionTime){this.transitionTime=transitionTime;}
+    public int getCoin(){ return coin;}
+    public void setCoin(int coint){this.coin=coin;}
+    public int getDefense(){return defense;}
+    public void setDefense(int defense){this.defense=defense;}
+    public int getDef(){return def;}
+    public void setDef(int def){this.def=def;}
+    public int getStrength(){return strength;}
+    public void setStrength(int strength){
+        this.strength=strength;
+        this.damage=strength*this.getCurrentWeapon().getAttackValue();
+    }
+    public int getLevel(){return level;}
+    public void setLevel(int level){this.level=level;}
+    public int getExp(){return exp;}
+    public void setExp(int exp){this.exp=exp;}
+    public int getNextLevelExp(){return nextLevelExp;}
+    public void setNextLevelExp(int nextLevelExp){this.nextLevelExp=nextLevelExp;}
 
+    public Entity getCurrentWeapon(){return currentWeapon;}
+    public void setCurrentWeapon(Entity weapon){
+        this.currentWeapon=weapon;
+        setDamage(strength*weapon.getAttackValue());
+    }
+    public Entity getCurrentShield(){return currentShield;}
+    public void setCurrentShield(Entity shield){
+        this.currentShield=shield;
+        setDefense(def*shield.getDefenseValue());
+    }
+    public int getDefenseValue(){return defenseValue;}
+    public void setDefenseValue(int defenseValue){this.defenseValue=defenseValue;}
+    public int getAttackValue(){return attackValue;}
+    public void setAttackValue(int attackValue){this.attackValue=attackValue;}
+    public double getWidth(){return width;}
+    public double getHeight(){return height;}
+    public void setWidth(double width){this.width=width;}
+    public void setHeight(double height){this.height=height;}
     public void debug(Graphics2D g2){
         g2.setColor(new Color(255,255,255,100));
         g2.fillRect(x-gp.getPlayerX()+gp.getPlayerScreenX()+triggleInteract.x, y-gp.getPlayerY()+gp.getPlayerScreenY()+triggleInteract.y, triggleInteract.width, triggleInteract.height);
@@ -293,27 +380,19 @@ public class Entity {
                 if (spriteNum==6){ image=sright6; }
                 break;
         }
-        if(type==3&&HPbar){
-            double ratioBarOverLife = (double) gp.getTileSize()/maxLife;
-            double HPvalue = ratioBarOverLife*life;
-            g2.setColor(new Color(35,35,35));
-            g2.fillRect(x-gp.getPlayerX()+gp.getPlayerScreenX()+getSolidAreaX()-8, y-gp.getPlayerY()+gp.getPlayerScreenY()-1, (int)HPvalue+2, 12);
-            g2.setColor(new Color(255,0,30));
-            g2.fillRect(x-gp.getPlayerX()+gp.getPlayerScreenX()+getSolidAreaX()-7, y-gp.getPlayerY()+gp.getPlayerScreenY(), (int)HPvalue, 10);
-            HPbarCounter++;
-            if(HPbarCounter>=600){
-                HPbar=false;
-                HPbarCounter=0;
-            }
-        } 
-        if (getDying()) {dyingAnimation(g2);} 
+        if(type==3&&HPbar) displayHPbar(g2);//if the entity is a monster, we display the HP bar
+        if (getDying()) dyingAnimation(g2); 
         g2.drawImage(image,x - gp.getPlayerX() + gp.getPlayerScreenX(),(y - gp.getPlayerY() + gp.getPlayerScreenY()),null);
         Transparency(g2,1F);
-       
-
     }
 
     public void update() {
+        spriteCounter++;
+        if(spriteCounter>transitionTime){
+            if(spriteNum<frame) spriteNum++;
+            else if(spriteNum==frame) spriteNum=1;
+            spriteCounter=0;
+        }
         setAction();
         collisionOn=false;
         gp.getColCheckTile(this);
@@ -324,10 +403,12 @@ public class Entity {
         if(getType()==3&&contactPlayer==true){
             if(gp.getPlayer().getInvincible()==false){
                 gp.playSoundEffect(7);
-                gp.getPlayer().setLife(gp.getPlayer().getLife()-1);
+                   int damageDeal = damage-gp.getPlayer().getDefense();
+                if(damageDeal<0) damageDeal=0;
+                gp.getPlayer().setLife(gp.getPlayer().getLife()-damageDeal);
                 gp.getPlayer().setInvincible(true);
             }
-        }
+        }//when entity collide player, player loses hp
   
         if(collisionOn==false){
            switch(direction){
@@ -339,8 +420,9 @@ public class Entity {
         }
         if(getInvincible()){
             setInvincibleCounter(getInvincibleCounter()+1);
-            if(getInvincibleCounter()==20){
+            if(getInvincibleCounter()==30){
                 HPbar=true;
+                HPbarCounter=0;
                 setInvincible(false);
                 setInvincibleCounter(0);
             }
@@ -348,6 +430,7 @@ public class Entity {
     }
 
     public void setAction() {}
+    public void damageReaction(){}
 
     public void speak() {
         if (ui.getDialogue(dialogueIndex) == null) {
@@ -408,22 +491,30 @@ public class Entity {
     }
     public void dyingAnimation(Graphics2D g2){
         dyingCounter++;
-        System.out.println(dyingCounter);
-        int i=5;
-        if(dyingCounter<=i) Transparency(g2,0f);
-        if(dyingCounter>i&&dyingCounter<=i*2) Transparency(g2,1f);
-        if(dyingCounter>i*2&&dyingCounter<=i*3) Transparency(g2,0f);
-        if(dyingCounter>i*3&&dyingCounter<=i*4) Transparency(g2,1f);
-        if(dyingCounter>i*4&&dyingCounter<=i*5) Transparency(g2,0f);
-        if(dyingCounter>i*5&&dyingCounter<=i*6) Transparency(g2,1f);
-        if(dyingCounter>i*6&&dyingCounter<=i*7) Transparency(g2,0f);
-        if(dyingCounter>i*7&&dyingCounter<=i*8) Transparency(g2,1f);
-        if(dyingCounter>i*8){
+        if(dyingCounter<=40){
+            if(dyingCounter%10==1||dyingCounter%10==2||dyingCounter%10==3||dyingCounter%10==4||dyingCounter%5==0) Transparency(g2,0f);
+            else Transparency(g2,1f);
+        }
+        else{
             dying=false;
             alive=false;
             dyingCounter=0;
         }
     }
+    public void displayHPbar(Graphics2D g2){
+        double ratioBarOverLife = (double) gp.getTileSize()/maxLife;
+            double HPvalue = ratioBarOverLife*life;
+            g2.setColor(new Color(35,35,35));
+            g2.fillRect(x-gp.getPlayerX()+gp.getPlayerScreenX()+getSolidAreaX()-8, y-gp.getPlayerY()+gp.getPlayerScreenY()-1, (int)HPvalue+2, 12);
+            g2.setColor(new Color(255,0,30));
+            g2.fillRect(x-gp.getPlayerX()+gp.getPlayerScreenX()+getSolidAreaX()-7, y-gp.getPlayerY()+gp.getPlayerScreenY(), (int)HPvalue, 10);
+            HPbarCounter++;
+            if(HPbarCounter>=600){
+                HPbar=false;
+                HPbarCounter=0;
+            }
+    }
+
     public void Transparency(Graphics2D g2,float alphaValue){
         g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alphaValue));
     }

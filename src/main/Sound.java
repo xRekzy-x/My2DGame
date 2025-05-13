@@ -19,13 +19,17 @@ public class Sound {
         soundURL[6]= getClass().getResource("/res/sound/hitmonster.wav");
         soundURL[7]= getClass().getResource("/res/sound/receivedamage.wav");
         soundURL[8]= getClass().getResource("/res/sound/swingweapon.wav");
+        soundURL[9]= getClass().getResource("/res/sound/cursor.wav");
     }
     public void setFile(int i){//open audio file in java
         try{
             AudioInputStream input = AudioSystem.getAudioInputStream(soundURL[i]);
             clip=AudioSystem.getClip();
             clip.open(input);
-        }catch(Exception e){ e.printStackTrace(); }
+        }catch(Exception e){ 
+            System.out.println("FAIL TO LOAD "+i);
+            e.printStackTrace(); 
+        }
     }
     public void play(){
         clip.start();

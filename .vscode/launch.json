@@ -2,6 +2,34 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type": "java",
+      "name": "App",
+      "request": "launch",
+      "mainClass": "App",
+      "projectName": "My2DGame_4872352"
+    },
+    {
+      "type": "java",
+      "name": "GamePlay",
+      "request": "launch",
+      "mainClass": "main.GamePlay",
+      "projectName": "My2DGame_4872352"
+    },
+    {
+      "type": "java",
+      "name": "GamePlay",
+      "request": "launch",
+      "mainClass": "GamePlay",
+      "projectName": "My2DGame_4872352"
+    },
+    {
+      "type": "java",
+      "name": "GamePlay",
+      "request": "launch",
+      "mainClass": "main.GamePlay",
+      "projectName": "My2DGame"
+    },
+    {
       "name": "C/C++ Runner: Debug Session",
       "type": "cppdbg",
       "request": "launch",

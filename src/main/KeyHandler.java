@@ -37,36 +37,37 @@ public class KeyHandler implements KeyListener {
 
    public void keyPressed(KeyEvent e) {
       int code = e.getKeyCode();
-      if (this.gp.getGameState() == this.gp.getTitleState()) {
-         if (code == KeyEvent.VK_W) {
+      if (this.gp.getGameState() == this.gp.getTitleState()) {titleState(code);}
+      else if (this.gp.getGameState() == this.gp.getPlayState()) {playState(code);} 
+      else if (this.gp.getGameState() == this.gp.getPauseState()) {pauseState(code);} 
+      else if (this.gp.getGameState() == this.gp.getDialogueState()) {dialogueState(code);}
+      else if (this.gp.getGameState() == this.gp.getCharacterState()){ characterState(code);}
+
+   }
+   public void titleState(int code){
+       if (code == KeyEvent.VK_W) {
             if (this.gp.getui().getCommandNumber() == 0) {
                this.gp.getui().setCommandNumber(3);
             }
-
             this.gp.getui().setCommandNumber(this.gp.getui().getCommandNumber() - 1);
          }
-
          if (code == KeyEvent.VK_S) {
             if (this.gp.getui().getCommandNumber() == 2) {
                this.gp.getui().setCommandNumber(-1);
             }
-
             this.gp.getui().setCommandNumber(this.gp.getui().getCommandNumber() + 1);
          }
-
          if (code == KeyEvent.VK_ENTER) {
             if (this.gp.getui().getCommandNumber() == 0) {
                this.gp.setGameState(this.gp.getPlayState());
             }
-
             if (this.gp.getui().getCommandNumber() == 2) {
                System.exit(0);
             }
          }
-      }
-
-      else if (this.gp.getGameState() == this.gp.getPlayState()) {
-         if (code == KeyEvent.VK_W) {
+   }
+   public void playState(int code){
+       if (code == KeyEvent.VK_W) {
             this.upPressed = true;
          }
          if (code == KeyEvent.VK_S) {
@@ -102,23 +103,45 @@ public class KeyHandler implements KeyListener {
          if (code == KeyEvent.VK_R){
             gp.getPlayer().setAttacking(true);
          }
-      } 
-      else if (this.gp.getGameState() == this.gp.getPauseState()) {
-         if (code == 80) {
-            this.gp.setGameState(this.gp.getPlayState());
+         if (code == KeyEvent.VK_TAB){
+            this.gp.setGameState(this.gp.getCharacterState());
          }
-      } else if (this.gp.getGameState() == this.gp.getDialogueState()) {
-         if (code == 90) {
+   }
+   public void pauseState(int code){
+      if (code == 80) {
+            this.gp.setGameState(this.gp.getPlayState());
+      }
+   }
+   public void dialogueState(int code){
+       if (code == KeyEvent.VK_P) {
             this.gp.setGameState(this.gp.getPlayState());
          }
 
          if (code == KeyEvent.VK_ENTER) {
             this.enterPressed = true;
          }
-      }
-
    }
-
+   public void characterState(int code){
+      if (code == KeyEvent.VK_TAB) {gp.setGameState(gp.getPlayState());}
+      if (code == KeyEvent.VK_ENTER) {gp.getPlayer().selectItem();}
+      if (code == KeyEvent.VK_A) {
+         if(gp.getui().getSlotCol()>0) gp.getui().setSlotCol(gp.getui().getSlotCol()-1);
+         gp.playSoundEffect(9);
+      }
+      if (code == KeyEvent.VK_D) {
+         if(gp.getui().getSlotCol()<gp.getui().getMaxSlotCol()-1) gp.getui().setSlotCol(gp.getui().getSlotCol()+1);
+         gp.playSoundEffect(9);
+      }
+       if (code == KeyEvent.VK_W) {
+         if(gp.getui().getSlotRow()>0) gp.getui().setSlotRow(gp.getui().getSlotRow()-1);
+         gp.playSoundEffect(9);
+      }
+       if (code == KeyEvent.VK_S) {
+         if(gp.getui().getSlotRow()<gp.getui().getMaxSlotRow()-1) gp.getui().setSlotRow(gp.getui().getSlotRow()+1);
+         gp.playSoundEffect(9);
+      }
+      
+   }
    public void keyReleased(KeyEvent e) {
       int code = e.getKeyCode();
       if (code == 87) {

@@ -19,6 +19,8 @@ public class NPC1 extends Entity {
         direction="sdown";
         super.setSpeed(1);
         super.setType(2);
+        super.setFrame(2);
+        super.setTransitionTime(10);
         addImage();
         setDialogue(); 
     }
@@ -52,8 +54,8 @@ public class NPC1 extends Entity {
         // up5 = setup("/skeleton/up5");
         // up6 = setup("/skeleton/up6");
         
-        sdown1 = setup("/NPC1/sdown1");
-        sdown2 = setup("/NPC1/sdown2");
+        sdown1 = setup("/NPC1/sdown1",2);
+        sdown2 = setup("/NPC1/sdown2",2);
         // sdown3 = setup("/skeleton/sdown3");
         // sdown4 = setup("/skeleton/sdown4");
         // sdown5 = setup("/skeleton/sdown5");
@@ -81,44 +83,10 @@ public class NPC1 extends Entity {
         // sleft6 = setup("/skeleton/sleft6");
         
     }
-    public BufferedImage setup(String path) {
-        BufferedImage image = null;
-        ImageModification mod = new ImageModification();
-        try {
-            image = ImageIO.read(getClass().getResourceAsStream("/res" + path + ".png"));
-            image = mod.scaleImage(image, gp.getTileSize()*2, gp.getTileSize()*2);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return image;
-    }
-    public void update(){ 
-        setAction();
-        collisionOn = false;
-        //gp.getColCheckTile(this);
-        //gp.getColCheckObject(this, false);
-        gp.getColCheckPlayer(this);
-        //int check = gp.getColCheckEntity(this, new Entity[]{gp.getPlayer()});
-        if(collisionOn==false){
-            switch(direction){
-                case "up": y-=getSpeed(); break;
-                case "down": y+=getSpeed(); break;
-                case "right":x+=getSpeed(); break;
-                case "left": x-=getSpeed(); break;
-            } 
-        spriteCounter++;
-        if(spriteCounter>10){
-            if(spriteNum==1) spriteNum=2;
-            else if (spriteNum==2) spriteNum=1;
-            spriteCounter=0;
-            }
-        }
-    }
     public void setDialogue(){
         gp.getui().setDialogue(0, "Bye bye nick ga");
         gp.getui().setDialogue(1, "kkkkkkkkkkkkkkkkk");
         gp.getui().setDialogue(2, "De ma noi thi me may rat \nla beo do kkkk");
     }
-   
 }
    

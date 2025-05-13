@@ -6,6 +6,8 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import main.ImageModification;
 
@@ -13,6 +15,11 @@ import javax.imageio.ImageIO;
 
 //import main.GamePanel;
 import main.KeyHandler;
+import objects.Key;
+import objects.Shield;
+import objects.Sword;
+import objects.UltraShield;
+import objects.UltraSword;
 import main.GamePanel;
 
 public class Player extends Entity {
@@ -20,13 +27,19 @@ public class Player extends Entity {
     final int screenX;
     final int screenY;
     private boolean hasKey = false;
+    private boolean usedKey = false;
     int randomX, randomY, checkIndex;
     int[][] mapTile;
-    private int strenth = 0;
     private int NPCindex = 0, monsterIndex = 0;
     private int countDialogue = 0;
     private Entity monster;
     boolean chestOpenSoundEffect = true;
+    private int attackSpriteCounter = 0;
+    //INVENTORY
+    private List<Entity> inventory = new ArrayList<>();
+    private final int maxInventorySize=20;
+    int chestCount=0;
+    int chestCountTemp=0;
 
     Random random = new Random();
 
@@ -44,6 +57,7 @@ public class Player extends Entity {
         this.setSolidAreaDefaultY(getSolidAreaY());// save the original value of x and y of solidArea cause it is going
                                                    // to change
         super.setType(1);
+        setItems();
 
     }
 
@@ -87,10 +101,6 @@ public class Player extends Entity {
         this.mapTile = mapTile;
     }
 
-    public void setStrength(int strength) {
-        this.strenth = strength;
-    }
-
     public int getCountDialogue() {
         return countDialogue;
     }
@@ -106,21 +116,6 @@ public class Player extends Entity {
     public int getScreenY() {
         return screenY;
     }
-
-    public int getStrength() {
-        return strenth;
-    }
-
-    public void setDefaultValues() {
-        x = 300;
-        y = 200;
-        super.setSpeed(4);
-        direction = "down";
-        // PLAYER STATUS
-        setMaxLife(12);
-        setLife(getMaxLife());
-    }
-
     public int getNPCindex() {
         return NPCindex;
     }
@@ -128,7 +123,40 @@ public class Player extends Entity {
     public void setNPCindex(int NPCindex) {
         this.NPCindex = NPCindex;
     }
-
+    public List<Entity> getInventory(){return inventory;}
+    public void addInventory(Entity item){inventory.add(item);}
+    public void removeInventory(Entity item){inventory.remove(item);}
+    public int getMaxInventorySize(){return maxInventorySize;}
+    public void setDefaultValues() {
+        x = 300;
+        y = 200;
+            
+        direction = "down";
+        // PLAYER STATUS
+        setMaxLife(12);
+        setLife(getMaxLife());
+        setSpeed(4);
+        setLevel(1);
+        setExp(0);
+        setNextLevelExp(5);
+        setCurrentWeapon(new Sword(gp));
+        setCurrentShield(new Shield(gp));
+        setStrength(1);
+        setDef(1);
+        setDamage(getStrength()*getCurrentWeapon().getAttackValue());
+        setDefense(getDef()*getCurrentShield().getDefenseValue());
+        setCoin(0);
+    }
+    public void setItems(){
+        inventory.add(getCurrentWeapon());
+        inventory.add(getCurrentShield());
+        inventory.add(new Key(gp));
+        inventory.add(new Key(gp));
+        inventory.add(new Key(gp));
+        inventory.add(new Key(gp));
+        inventory.add(new Key(gp));
+    }
+    //public void defenseCalculation(){return defense*getCurrentShield().getDefenseValue();}
     public BufferedImage setup(String path, int width, int height) {
         BufferedImage image = null;
         ImageModification mod = new ImageModification();
@@ -203,6 +231,33 @@ public class Player extends Entity {
         adown8 = setup("/player/adown8", gp.getTileSize() * 2, gp.getTileSize() * 3);
         adown9 = setup("/player/adown9", gp.getTileSize() * 2, gp.getTileSize() * 3);
         adown10 = setup("/player/adown10", gp.getTileSize() * 2, gp.getTileSize() * 3);
+
+        aup1 = setup("/player/aup1", gp.getTileSize() * 2, gp.getTileSize() * 3);
+        aup2 = setup("/player/aup2", gp.getTileSize() * 2, gp.getTileSize() * 3);
+        aup3 = setup("/player/aup3", gp.getTileSize() * 2, gp.getTileSize() * 3);
+        aup4 = setup("/player/aup4", gp.getTileSize() * 2, gp.getTileSize() * 3);
+        aup5 = setup("/player/aup5", gp.getTileSize() * 2, gp.getTileSize() * 3);
+        aup6 = setup("/player/aup6", gp.getTileSize() * 2, gp.getTileSize() * 3);
+        aup7 = setup("/player/aup7", gp.getTileSize() * 2, gp.getTileSize() * 3);
+        aup8 = setup("/player/aup8", gp.getTileSize() * 2, gp.getTileSize() * 3);
+        aup9 = setup("/player/aup9", gp.getTileSize() * 2, gp.getTileSize() * 3);
+        aup10 = setup("/player/aup10", gp.getTileSize() * 2, gp.getTileSize() * 3);
+
+        aleft1 = setup("/player/aleft1", gp.getTileSize() * 2, gp.getTileSize() * 3);
+        aleft2 = setup("/player/aleft2", gp.getTileSize() * 2, gp.getTileSize() * 3);
+        aleft3 = setup("/player/aleft3", gp.getTileSize() * 2, gp.getTileSize() * 3);
+        aleft4 = setup("/player/aleft4", gp.getTileSize() * 2, gp.getTileSize() * 3);
+        aleft5 = setup("/player/aleft5", gp.getTileSize() * 2, gp.getTileSize() * 3);
+        aleft6 = setup("/player/aleft6", gp.getTileSize() * 2, gp.getTileSize() * 3);
+
+        aright1 = setup("/player/aright1", gp.getTileSize() * 2, gp.getTileSize() * 3);
+        aright2 = setup("/player/aright2", gp.getTileSize() * 2, gp.getTileSize() * 3);
+        aright3 = setup("/player/aright3", gp.getTileSize() * 2, gp.getTileSize() * 3);
+        aright4 = setup("/player/aright4", gp.getTileSize() * 2, gp.getTileSize() * 3);
+        aright5 = setup("/player/aright5", gp.getTileSize() * 2, gp.getTileSize() * 3);
+        aright6 = setup("/player/aright6", gp.getTileSize() * 2, gp.getTileSize() * 3);
+
+
     }
 
     public void update() {
@@ -229,6 +284,7 @@ public class Player extends Entity {
                     direction = "right";
                 }
                 spriteCounter++;
+              
                 // CHECK TILE'S COLLISION
                 collisionOn = false;
                 gp.getColCheckTile(this);
@@ -237,7 +293,7 @@ public class Player extends Entity {
                 objectBehavior(objIndex);
                 // CHECK ENTITY'S COLLISION
                 monsterIndex = gp.getColCheckEntity(this, gp.getMonster());
-                NPCindex = gp.getColCheckEntity(this, gp.getNPC());
+                NPCindex = gp.getColCheckEntity(this, gp.getNPC());         
                 if (collisionOn == false) {
                     // switch(direction){
                     // case "up": y-=speed; break;
@@ -305,6 +361,9 @@ public class Player extends Entity {
                     spriteCounter = 0;
                 }
             }
+               // CHECK ENTITY'S COLLISION
+                monsterIndex = gp.getColCheckEntity(this, gp.getMonster());
+                NPCindex = gp.getColCheckEntity(this, gp.getNPC());
 
             // CHECK EVENT
             gp.getEvent().checkEvent();
@@ -314,7 +373,7 @@ public class Player extends Entity {
             interactNPC(NPCindex);
             if (getInvincible()) {
                 setInvincibleCounter(getInvincibleCounter() + 1);
-                if (getInvincibleCounter() == 30) {
+                if (getInvincibleCounter() == 60) {
                     setInvincible(false);
                     setInvincibleCounter(0);
                 }
@@ -332,6 +391,34 @@ public class Player extends Entity {
                 (gp.getPlayerScreenX() + getSolidAreaX()),
                 (gp.getPlayerScreenY() + getSolidAreaY()),
                 getSolidAreaWidth(), getSolidAreaHeight());
+        g2.setColor(new Color(100,100,100,100));
+        switch(direction){
+            case "up": case "sup":
+                g2.fillRect(
+                    (gp.getPlayerScreenX()+ getSolidAreaX()-24),
+                    (gp.getPlayerScreenY()-getAttackingAreaHeight() + getSolidAreaY()),
+                    getAttackingAreaWidth(), getAttackingAreaHeight());
+                    break;
+            case "down": case "sdown":
+                g2.fillRect(
+                    (gp.getPlayerScreenX()+ getSolidAreaX()-24),
+                    (gp.getPlayerScreenY()+getAttackingAreaHeight()+ getSolidAreaY() ),
+                    getAttackingAreaWidth(), getAttackingAreaHeight());
+                    break;
+            case "left": case "sleft":
+              g2.fillRect(
+                    (gp.getPlayerScreenX()+ getSolidAreaX()-24- getAttackingAreaWidth()),
+                    (gp.getPlayerScreenY()+ getSolidAreaY() ),
+                    getAttackingAreaWidth(), getAttackingAreaHeight());
+                    break;
+            case "right": case "sright":
+              g2.fillRect(
+                    (gp.getPlayerScreenX()+ getSolidAreaX()-24+ getAttackingAreaWidth()),
+                    (gp.getPlayerScreenY()+ getSolidAreaY() ),
+                    getAttackingAreaWidth(), getAttackingAreaHeight());
+                    break;
+        }
+
     }
     public void draw(Graphics2D g2) {
         int tempX = screenX;
@@ -360,24 +447,17 @@ public class Player extends Entity {
                     }
                 }
                 if (getAttacking()) {
-                    if (spriteNum == 1) {
-                        image = up1;
-                    }
-                    if (spriteNum == 2) {
-                        image = up2;
-                    }
-                    if (spriteNum == 3) {
-                        image = up3;
-                    }
-                    if (spriteNum == 4) {
-                        image = up4;
-                    }
-                    if (spriteNum == 5) {
-                        image = up5;
-                    }
-                    if (spriteNum == 6) {
-                        image = up6;
-                    }
+                    tempX-=24;
+                    if (spriteNum == 1) {image = aup1;}
+                    if (spriteNum == 2) {image = aup2;}
+                    if (spriteNum == 3) {image = aup3;}
+                    if (spriteNum == 4) {image = aup4;}
+                    if (spriteNum == 5) {image = aup5;}
+                    if (spriteNum == 6) {image = aup6;}
+                    if (spriteNum == 7) {image = aup7;}
+                    if (spriteNum == 8) {image = aup8;}
+                    if (spriteNum == 9) {image = aup9;}
+                    if (spriteNum == 10) {image = aup10;}
                 }
                 break;
             case "down":
@@ -457,24 +537,13 @@ public class Player extends Entity {
                     }
                 }
                 if (getAttacking()) {
-                    if (spriteNum == 1) {
-                        image = right1;
-                    }
-                    if (spriteNum == 2) {
-                        image = right2;
-                    }
-                    if (spriteNum == 3) {
-                        image = right3;
-                    }
-                    if (spriteNum == 4) {
-                        image = right4;
-                    }
-                    if (spriteNum == 5) {
-                        image = right5;
-                    }
-                    if (spriteNum == 6) {
-                        image = right6;
-                    }
+                    tempX-=24;
+                    if (spriteNum == 1) {image = aright1;}
+                    if (spriteNum == 2) {image = aright2;}
+                    if (spriteNum == 3) {image = aright3;}
+                    if (spriteNum == 4) {image = aright4;}
+                    if (spriteNum == 5) {image = aright5;}
+                    if (spriteNum == 6) {image = aright6;}
                 }
                 break;
             case "left":
@@ -499,24 +568,13 @@ public class Player extends Entity {
                     }
                 }
                 if (getAttacking()) {
-                    if (spriteNum == 1) {
-                        image = left1;
-                    }
-                    if (spriteNum == 2) {
-                        image = left2;
-                    }
-                    if (spriteNum == 3) {
-                        image = left3;
-                    }
-                    if (spriteNum == 4) {
-                        image = left4;
-                    }
-                    if (spriteNum == 5) {
-                        image = left5;
-                    }
-                    if (spriteNum == 6) {
-                        image = left6;
-                    }
+                    tempX-=24;
+                    if (spriteNum == 1) {image = aleft1;}
+                    if (spriteNum == 2) {image = aleft2;}
+                    if (spriteNum == 3) {image = aleft3;}
+                    if (spriteNum == 4) {image = aleft4;}
+                    if (spriteNum == 5) {image = aleft5;}
+                    if (spriteNum == 6) {image = aleft6;}
                 }
                 break;
             case "sdown":
@@ -569,53 +627,67 @@ public class Player extends Entity {
                 }
                 break;
             case "sup":
-                if (spriteNum == 1) {
-                    image = sup1;
+                if(!getAttacking()){
+                    if (spriteNum == 1) { image = sup1;}
+                    if (spriteNum == 2) {image = sup2;}
+                    if (spriteNum == 3) {image = sup3;}
+                    if (spriteNum == 4) {image = sup4;}
                 }
-                if (spriteNum == 2) {
-                    image = sup2;
-                }
-                if (spriteNum == 3) {
-                    image = sup3;
-                }
-                if (spriteNum == 4) {
-                    image = sup4;
+                if (getAttacking()) {
+                    tempX-=24;
+                    if (spriteNum == 1) {image = aup1;}
+                    if (spriteNum == 2) {image = aup2;}
+                    if (spriteNum == 3) {image = aup3;}
+                    if (spriteNum == 4) {image = aup4;}
+                    if (spriteNum == 5) {image = aup5;}
+                    if (spriteNum == 6) {image = aup6;}
+                    if (spriteNum == 7) {image = aup7;}
+                    if (spriteNum == 8) {image = aup8;}
+                    if (spriteNum == 9) {image = aup9;}
+                    if (spriteNum == 10) {image = aup10;}
                 }
                 break;
+                
             case "sleft":
-                if (spriteNum == 1) {
-                    image = sleft1;
-                }
-                if (spriteNum == 2) {
-                    image = sleft2;
-                }
-                if (spriteNum == 3) {
-                    image = sleft3;
-                }
-                if (spriteNum == 4) {
-                    image = sleft4;
-                }
+            if(!getAttacking()){
+                if (spriteNum == 1) {image = sleft1;}
+                if (spriteNum == 2) {image = sleft2;}
+                if (spriteNum == 3) {image = sleft3;}
+                if (spriteNum == 4) {image = sleft4;}
+            }
+              if (getAttacking()) {
+                tempX-=24;
+                if (spriteNum == 1) {image = aleft1;}
+                if (spriteNum == 2) {image = aleft2;}
+                if (spriteNum == 3) {image = aleft3;}
+                if (spriteNum == 4) {image = aleft4;}
+                if (spriteNum == 5) {image = aleft5;}
+                if (spriteNum == 6) {image = aleft6;}
+            }
                 break;
             case "sright":
-                if (spriteNum == 1) {
-                    image = sright1;
-                }
-                if (spriteNum == 2) {
-                    image = sright2;
-                }
-                if (spriteNum == 3) {
-                    image = sright3;
-                }
-                if (spriteNum == 4) {
-                    image = sright4;
-                }
+            if(!getAttacking()){
+                if (spriteNum == 1) {image = sright1;}
+                if (spriteNum == 2) {image = sright2;}
+                if (spriteNum == 3) {image = sright3;}
+                if (spriteNum == 4) {image = sright4;}
+            }
+            if (getAttacking()) {
+                tempX-=24;
+                if (spriteNum == 1) {image = aright1;}
+                if (spriteNum == 2) {image = aright2;}
+                if (spriteNum == 3) {image = aright3;}
+                if (spriteNum == 4) {image = aright4;}
+                if (spriteNum == 5) {image = aright5;}
+                if (spriteNum == 6) {image = aright6;}
+            }
                 break;
         }
         g2.drawImage(image, tempX, tempY, null);
     }
 
     public int getAttackX() {
-        int attX = x;
+        int attX = x-12;
         switch (direction) {
             case "left":
                 attX -= getAttackingAreaWidth();
@@ -642,113 +714,142 @@ public class Player extends Entity {
             case "sup":
                 attY -= getAttackingAreaHeight();
                 break;
-            case "down":
-                attY += getAttackingAreaHeight();
-                break;
-            case "sdown":
-                attY += getAttackingAreaHeight();
-                break;
+            // case "down":
+            //     attY += getAttackingAreaHeight();
+            //     break;
+            // case "sdown":
+            //     attY += getAttackingAreaHeight();
+            //     break;
         }
         return attY;
     }
 
     public void attack() {
-        System.out.println(spriteCounter);
         int solidAreaWidth = getSolidAreaWidth(), solidAreaHeight = getSolidAreaHeight();
         setSolidAreaWidth(getAttackingAreaWidth());
         setSolidAreaHeight(getAttackingAreaHeight());
         damageMonster(gp.getColCheckEntity(this, gp.getMonster()));
         setSolidAreaWidth(solidAreaWidth);
         setSolidAreaHeight(solidAreaHeight);
-        spriteCounter++;
-        if (spriteCounter <= 5) {
-            spriteNum = 1;
-        }
-        if (spriteCounter > 5 && spriteCounter <= 10)
-            spriteNum = 2;
-        if (spriteCounter > 10 && spriteCounter <= 15) {
-            spriteNum = 3;
-            if (spriteCounter == 11)
-                gp.playSoundEffect(8);
-        }
-        if (spriteCounter > 15 && spriteCounter <= 20)
-            spriteNum = 4;
-        if (spriteCounter > 20 && spriteCounter <= 25) {
-            spriteNum = 5;
-        }
-        if (spriteCounter > 25 && spriteCounter <= 30)
-            spriteNum = 6;
-        if (spriteCounter > 30 && spriteCounter <= 35) {
-            spriteNum = 7;
-            if (spriteCounter == 31)
-                gp.playSoundEffect(8);
-        }
-        if (spriteCounter > 35 && spriteCounter <= 40)
-            spriteNum = 8;
-        if (spriteCounter > 40 && spriteCounter <= 45)
-            spriteNum = 9;
-        if (spriteCounter > 45 && spriteCounter <= 50)
-            spriteNum = 10;
-        if (spriteCounter > 50) {
-            spriteNum = 1;
-            spriteCounter = 0;
-            setAttacking(false);
-        }
+        attackSpriteCounter++;
+        switch(direction){
+            case"up":case"sup":case"down":case"sdown":
+                if (attackSpriteCounter <= 5) {
+                    spriteNum = 1;
+                }
+                else if(attackSpriteCounter%5==1){
+                    spriteNum++;
+                }
+                if (spriteCounter == 11) gp.playSoundEffect(8);
+                if (spriteCounter == 31) gp.playSoundEffect(8);
+                if (attackSpriteCounter > 50) {
+                    spriteNum = 1;
+                    attackSpriteCounter = 0;
+                    setAttacking(false);
+                }
+            break;
+            case"left":case"sleft":case"right":case"sright":
+                if (attackSpriteCounter <= 8) {
+                    spriteNum = 1;
+                }
+                else if(attackSpriteCounter%8==1){
+                    spriteNum++;
+                }
+                if (spriteCounter == 11) gp.playSoundEffect(8);
+                if (spriteCounter == 31) gp.playSoundEffect(8);
+                if (attackSpriteCounter > 48) {
+                    spriteNum = 1;
+                    attackSpriteCounter = 0;
+                    setAttacking(false);
+                }
+            break;
     }
-
+    }
+    public void pickupObject(int ObjIndex){
+        if(inventory.size()<=maxInventorySize){
+            inventory.add(gp.getObj(ObjIndex));
+            gp.getui().addMessage("you've got a "+gp.getObj(ObjIndex).getName());
+            gp.setObj(null, ObjIndex);
+        }
+        else{
+            gp.getui().addMessage("Inventory full!");
+        }
+        
+    }
     public void objectBehavior(int ObjIndex) {
         if (ObjIndex != 999) {// 999 is the index of monster, NPC ...
             switch (gp.getObjName(ObjIndex)) {
                 case "Key":
-                    gp.setObj(null, ObjIndex);
+                    // gp.setObj(null, ObjIndex);
                     hasKey = true;
-                    gp.getui().showMessage("+1");
+                    pickupObject(ObjIndex);
                     break;
 
                 case "Chest":
-                    if (hasKey) {
-                        System.out.println("HASSSSSKEUY");
-                        gp.getObj(ObjIndex).setSdown1(setup("/obj/PLEASE", 1));
-                        if (chestOpenSoundEffect) {
-                            gp.playSoundEffect(3);
-                            chestOpenSoundEffect = false;
+                    for (int i = 0; i < inventory.size(); i++) {
+                        if (inventory.get(i).getName().matches("Key")&&
+                        gp.getObj(ObjIndex).getName().equals("Chest")) {
+                            gp.getObj(ObjIndex).setSdown1(setup("/obj/PLEASE", 1));
+                            gp.getObj(ObjIndex).setName("UsedChest");
+                            gp.setObj(new UltraSword(gp), 5, 5);
+                            gp.setObj(new UltraShield(gp), 6, 5);
+                            
+                            if (chestOpenSoundEffect) {
+                                gp.playSoundEffect(3);
+                                chestOpenSoundEffect = false;
+                            }
+                            inventory.remove(i);
+                            usedKey=true;
+                            break;
+                        } else{
+                                gp.getui().showMessage("You need a key");
                         }
-                    } else
-                        gp.getui().showMessage("You need a key");
+                    }
+                    break;
+                case "UsedChest":
+                    gp.getui().showMessage("chest is used");
                     break;
                 case "Boots":
                     gp.setObj(null, ObjIndex);
                     setSpeed(getSpeed() + 3);
                     gp.playSoundEffect(2);
-                    gp.getui().showMessage("Speed up!");
+                    gp.getui().addMessage("Speed up!");
                     break;
                 case "StrengthPotion":
-                    strenth += 10;
-                    randomX = random.nextInt(gp.getMaxWorldCol());
-                    randomY = random.nextInt(gp.getMaxWorldRow());
-                    mapTile = gp.getMapTile();
-
-                    checkIndex = mapTile[randomY][randomX];
-                    System.out.println(checkIndex);
-                    System.out.println(randomX);
-                    System.out.println(randomY);
-                    System.out.println(gp.getExactTile(checkIndex).getGetCollision());
-                    while (gp.getExactTile(checkIndex).getGetCollision()) {
-                        if (randomX < gp.getMaxWorldCol() - 1)
-                            randomX++;
-                        else if (randomY < gp.getMaxWorldRow())
-                            randomY++;
-                        else
-                            randomY--;
-                        checkIndex = mapTile[randomY][randomX];
-                    }
-
-                    gp.getObj(ObjIndex).setX(randomX * gp.getTileSize());
-                    gp.getObj(ObjIndex).setY(randomY * gp.getTileSize());
+                  
+                    // setStrength(getStrength()+1);
+                    // randomX = random.nextInt(gp.getMaxWorldCol());
+                    // randomY = random.nextInt(gp.getMaxWorldRow());
+                    // mapTile = gp.getMapTile();
+                    // checkIndex = mapTile[randomY][randomX];
+                    // System.out.println(checkIndex);
+                    // System.out.println(randomX);
+                    // System.out.println(randomY);
+                    // System.out.println(gp.getExactTile(checkIndex).getGetCollision());
+                    // while (gp.getExactTile(checkIndex).getGetCollision()) {
+                    //     if (randomX < gp.getMaxWorldCol() - 1)
+                    //         randomX++;
+                    //     else if (randomY < gp.getMaxWorldRow())
+                    //         randomY++;
+                    //     else
+                    //         randomY--;
+                    //     checkIndex = mapTile[randomY][randomX];
+                    // }
+                    // gp.getObj(ObjIndex).setX(randomX * gp.getTileSize());
+                    // gp.getObj(ObjIndex).setY(randomY * gp.getTileSize());
+                    pickupObject(ObjIndex);
                     break;
-
+                case "UltraSword":
+                    this.setCurrentWeapon(gp.getObj(ObjIndex));
+                    pickupObject(ObjIndex);
+                    break;
+                case "UltraShield":
+                    this.setCurrentShield(gp.getObj(ObjIndex));
+                    pickupObject(ObjIndex);
+                    break;
             }
-        } else {
+        }
+         else {
             try {
                 gp.getObj(0).setImage(ImageIO.read(getClass().getResourceAsStream("/res/obj/chest.png")));
             } catch (IOException e) {
@@ -756,7 +857,6 @@ public class Player extends Entity {
             }
         }
     }
-
     public void interactNPC(int NPCindex) {
         if (NPCindex != 999) {
             switch (NPCindex) {
@@ -790,35 +890,49 @@ public class Player extends Entity {
 
     public void interactMonster(int monsterIndex) {
         if (monsterIndex != 999) {
-            // switch (monsterIndex) {
-            // case 1:
-            // break;
-
-            // default:
-            // break;
-            // }
             if (getInvincible() == false) {
+                int damageDeal = gp.getExactMonster(monsterIndex).getDamage()-gp.getPlayer().getDefense();
+                if(damageDeal<0) damageDeal=0;
                 gp.playSoundEffect(7);
-                setLife(getLife() - 1);
+                setLife(getLife() - damageDeal);
                 setInvincible(true);
             }
         }
-    }
-
+    }//when player collide monster, player loses hp
     public void damageMonster(int i) {
         if (i != 999) {
             if (gp.getExactMonster(i).getInvincible() == false) {
+                int damageDeal = getDamage()-gp.getExactMonster(i).getDefense();
+                if(damageDeal<0) damageDeal=0;
                 gp.playSoundEffect(6);
-                gp.getExactMonster(i).setLife(gp.getExactMonster(i).getLife() - 1);
+                gp.getExactMonster(i).setLife(gp.getExactMonster(i).getLife() - damageDeal);//reduce the health
+                gp.getui().addMessage("-"+getDamage());
                 gp.getExactMonster(i).setInvincible(true);
+                gp.getExactMonster(i).damageReaction();
+                System.out.println("hit");
                 if (gp.getExactMonster(i).getLife() <= 0) {
-                    System.out.println("hit");
-                    // gp.setExactMonster(i, null);
                     gp.getExactMonster(i).setDying(true);
+                    gp.getui().addMessage("You killed a " + gp.getExactMonster(i).getName());
+                    
                 }
             }
-        } else {
-            System.out.println("miss");
+        } 
+    }//when player attact monster, monster lose hp
+    public void selectItem(){
+           //SELECTING ITEM
+        if(inventory.get(gp.getui().getItemIndexInInventory()).getType()==getSwordType()){
+            setCurrentWeapon(inventory.get(gp.getui().getItemIndexInInventory()));
+            gp.getKey().setEnterPressed(false);
         }
+        if(inventory.get(gp.getui().getItemIndexInInventory()).getType()==getShieldType()){
+            setCurrentShield(inventory.get(gp.getui().getItemIndexInInventory()));
+            gp.getKey().setEnterPressed(false);
+        }
+        if(inventory.get(gp.getui().getItemIndexInInventory()).getType()==getConsumableType()){
+            setStrength(getStrength()+3);
+            inventory.remove(gp.getui().getItemIndexInInventory());
+            gp.getKey().setEnterPressed(false);
+        }
+        
     }
 }

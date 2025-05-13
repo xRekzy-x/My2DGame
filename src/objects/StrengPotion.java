@@ -16,6 +16,7 @@ public class StrengPotion extends Entity {
         super.setSolidAreaDefaultY(0);
         super.setName("StrengthPotion");
         setSdown1( setup("/obj/potion",1));
+        setType(getConsumableType());
         // try{
         //     super.setImage(ImageIO.read(getClass().getResourceAsStream("/res/obj/potion.png")));
         // }catch(IOException e){ e.printStackTrace(); }

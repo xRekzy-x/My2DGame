@@ -1,0 +1,45 @@
+tile[30]=new Tile();
+            tile[30].image = ImageIO.read(getClass().getResourceAsStream("/res/tile/tile_0_3.png"));
+        //    -------
+            tile[31]=new Tile();
+            tile[31].image = ImageIO.read(getClass().getResourceAsStream("/res/tile/cayhoatrang.png"));
+            tile[32]=new Tile();
+            tile[32].image = ImageIO.read(getClass().getResourceAsStream("/res/tile/cay_blue_top.png"));
+            tile[33]=new Tile();
+            tile[33].image = ImageIO.read(getClass().getResourceAsStream("/res/tile/cay_blue_bottom.png"));
+            tile[34]=new Tile();
+            tile[34].image = ImageIO.read(getClass().getResourceAsStream("/res/tile/cay_green_top.png"));
+            tile[35]=new Tile();
+             tile[35].image = ImageIO.read(getClass().getResourceAsStream("/res/tile/cay_green_bottom.png"));
+            tile[36]=new Tile();
+            tile[36].image = ImageIO.read(getClass().getResourceAsStream("/res/tile/cay_orange_top.png"));
+            tile[37]=new Tile();
+            tile[37].image = ImageIO.read(getClass().getResourceAsStream("/res/tile/cay_orange_bottom.png"));
+            tile[38]=new Tile();
+            tile[38].image = ImageIO.read(getClass().getResourceAsStream("/res/tile/cay_xanhdam_top.png"));
+            tile[39]=new Tile();
+            tile[39].image = ImageIO.read(getClass().getResourceAsStream("/res/tile/cay_xanhdam_bottom.png"));
+            tile[40]=new Tile();
+            
+            tile[40].image = ImageIO.read(getClass().getResourceAsStream("/res/tile/goc_cay_bi_chat.png"));
+            tile[41]=new Tile();
+            tile[41].image = ImageIO.read(getClass().getResourceAsStream("/res/tile/flower_red.png"));
+        //-----
+            tile[42]=new Tile();
+            tile[42].image = ImageIO.read(getClass().getResourceAsStream("/res/tile/bluetreeNW_top.png"));
+            tile[43]=new Tile();
+            tile[43].image = ImageIO.read(getClass().getResourceAsStream("/res/tile/bluetreeNE_top.png"));
+            tile[44]=new Tile();
+            tile[44].image = ImageIO.read(getClass().getResourceAsStream("/res/tile/bluetreeSW_bottom.png"));
+            tile[45]=new Tile();
+            tile[45].image = ImageIO.read(getClass().getResourceAsStream("/res/tile/bluetreeSE_bottom.png"));
+
+            tile[46]=new Tile();
+            tile[46].image = ImageIO.read(getClass().getResourceAsStream("/res/tile/greentreeNW_top.png"));
+            tile[47]=new Tile();
+            tile[47].image = ImageIO.read(getClass().getResourceAsStream("/res/tile/greentreeNE_top.png"));
+            tile[48]=new Tile();
+            tile[48].image = ImageIO.read(getClass().getResourceAsStream("/res/tile/greentreeSW_bottom.png"));
+            tile[49]=new Tile();
+            tile[49].image = ImageIO.read(getClass().getResourceAsStream("/res/tile/greentreeSE_bottom.png"));
+        }

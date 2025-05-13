@@ -16,6 +16,7 @@ public class Key extends Entity {
         super.setSolidAreaDefaultY(0);
         super.setName("Key");
         setSdown1( setup("/obj/key",1));
+        super.setDescription("a key to open chest");
         // try{
         //     super.setImage(ImageIO.read(getClass().getResourceAsStream("/res/obj/key.png")));
         // }catch(IOException e){ e.printStackTrace(); }

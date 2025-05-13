@@ -16,10 +16,9 @@ public class Boots extends Entity {
         super.setSolidAreaDefaultY(0);
       
         super.setName("Boots");
+        setWidth(1);
+        setHeight(1);
         setSdown1( setup("/obj/boots",1));
-        // try{
-        //     super.setImage(ImageIO.read(getClass().getResourceAsStream("/res/obj/boots.png")));
-        // }catch(IOException e){ e.printStackTrace(); }
     }
     
 }
