@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 import java.util.Random;
 
 import entities.Entity;
+import entities.Rock;
 import main.GamePanel;
 
 public class Slime extends Entity {
@@ -26,7 +27,8 @@ public class Slime extends Entity {
         super.setSpeed(1);
         super.setMaxLife(50);
         super.setLife(getMaxLife());
-        
+        super.setExp(1);
+        super.setProjectile(new Rock(gp));
         //SETTING
         super.setType(3);
         super.setFrame(9);
@@ -100,6 +102,13 @@ public class Slime extends Entity {
             }
             TimeToChangeDirection = 0;
         }
+        int i = random.nextInt(100)+1;
+        if(getShotCountdown()<30) setShotCountdown(getShotCountdown()+1);
+        if(i>99&&getProjectile().getAlive()==false&&getShotCountdown()==30){
+            getProjectile().set(getX(), getY(), direction, true, this);
+            gp.addProjectile(getProjectile());
+            setShotCountdown(0);
+        }
     }
     public void damageReaction(){
         TimeToChangeDirection=0;
@@ -107,6 +116,5 @@ public class Slime extends Entity {
         if(gp.getPlayer().getDirection()=="sup") direction = "up";
         if(gp.getPlayer().getDirection()=="sleft") direction = "left";
         if(gp.getPlayer().getDirection()=="sright") direction = "right";
-        System.out.println(direction);
     }
 }

@@ -3,6 +3,7 @@ package main;
 import entities.Entity;
 import entities.NPC1;
 import entities.Player;
+import entities.Projectile;
 import monster.skeleton;
 import monster.Slime;
 
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 import javax.swing.JPanel;
 import javax.swing.plaf.DimensionUIResource;
@@ -71,12 +73,14 @@ public class GamePanel extends JPanel implements Runnable {
    private int pauseState=2;
    private int dialogueState=3;
    private int characterState=4;
+   private int overState = 5;
 
    //EVENT
    private Event event = new Event(this);
 
    //DRAW ORDER
-   ArrayList<Entity> entityList = new ArrayList<>();
+   private ArrayList<Projectile> projectileList = new ArrayList<>();
+   private ArrayList<Entity> entityList = new ArrayList<>();
 
    public GamePanel() {
       this.player = new Player(this, this.key);
@@ -142,6 +146,7 @@ public class GamePanel extends JPanel implements Runnable {
       this.npc[1].setY(96);
    }
    public void setMonster(){
+      int i = 3;
       monster[0] = new skeleton(this);
       monster[0].setX(480);
       monster[0].setY(480);
@@ -150,7 +155,31 @@ public class GamePanel extends JPanel implements Runnable {
       // monster[1].setY(6*tileSize);
       monster[2]=new Slime(this);
       monster[2].setX(getPlayerX()+tileSize);
-      monster[2].setY(getPlayerY()-tileSize); 
+      monster[2].setY(getPlayerY()-tileSize);
+      monster[3]=new Slime(this);
+      monster[3].setX(tileSize*1);
+      monster[3].setY(tileSize*2);
+      i++;
+      monster[i]=new Slime(this);
+      monster[i].setX(tileSize*2);
+      monster[i].setY(tileSize*2);
+        i++;
+      monster[i]=new Slime(this);
+      monster[i].setX(tileSize*3);
+      monster[i].setY(tileSize*2);
+        i++;
+      monster[i]=new Slime(this);
+      monster[i].setX(tileSize*4);
+      monster[i].setY(tileSize*2);
+        i++;
+      monster[i]=new Slime(this);
+      monster[i].setX(tileSize*5);
+      monster[i].setY(tileSize*2);
+        i++;
+      monster[i]=new skeleton(this);
+      monster[i].setX(tileSize*6);
+      monster[i].setY(tileSize*2);
+      
 
    }
    public Graphics2D getG2(){ return g2;}
@@ -162,6 +191,7 @@ public class GamePanel extends JPanel implements Runnable {
    public int getDialogueState() {return this.dialogueState;}
    public int getCharacterState(){return characterState;}
    public int getTileSize() {return tileSize;}
+   public int getOverState() {return overState;}
    public int getScreenWidth() { return screenWidth;}
    public int getScreenHeight() {return screenHeight;}
    public int getScale() {return scale;}
@@ -243,6 +273,8 @@ public class GamePanel extends JPanel implements Runnable {
    }
    public Event getEvent(){return event;}
    public void setEvent(Event event){this.event=event;}
+   public List<Projectile> getProjectile(){return projectileList;}
+   public void addProjectile(Projectile projectile){this.projectileList.add(projectile);}
 
    public void setupGame() {
       setObjects();
@@ -301,14 +333,18 @@ public class GamePanel extends JPanel implements Runnable {
    public void update() {
       if (this.gameState == this.playState) {
          this.player.update();
-         for(int i = 0; i < npc.length; ++i) {if (npc[i] != null) {npc[i].update();}}
+         for(int i = 0; i < npc.length; ++i) if (npc[i] != null) npc[i].update();
          for(int i = 0; i < monster.length; ++i) {if (monster[i] != null){
             if(monster[i].getAlive()&&monster[i].getDying()==false) monster[i].update();
             if(monster[i].getAlive()==false ) monster[i]=null;
             }
          }
+         for(int k = 0; k < projectileList.size(); k++) {if (projectileList.get(k) != null){
+            if(projectileList.get(k).getAlive()) projectileList.get(k).update();
+            if(projectileList.get(k).getAlive()==false ) projectileList.remove(k);
+            }
+         }
       }
-
       if (this.gameState == this.dialogueState) {
          this.player.setNPCindex(this.getColCheckInteract(this.player, this.npc));
          this.player.interactNPC(this.player.getNPCindex());
@@ -361,6 +397,7 @@ public class GamePanel extends JPanel implements Runnable {
          for(i=0;i<npc.length;i++){ if(npc[i]!=null) entityList.add(npc[i]);}
          for(i=0;i<obj.length;i++){ if(obj[i]!=null) entityList.add(obj[i]);}
          for(i=0;i<monster.length;i++){ if(monster[i]!=null) entityList.add(monster[i]);}
+         for(i=0;i<projectileList.size();i++){ if(projectileList.get(i)!=null) entityList.add(projectileList.get(i));}
          Collections.sort(entityList, new Comparator<Entity>() {
             @Override
             public int compare(Entity e1, Entity e2) {
@@ -427,5 +464,12 @@ public class GamePanel extends JPanel implements Runnable {
       this.effect.setFile(i);
       this.effect.play();
    }
+   public void resetGame(){
+      setMonster();
+      player.setDefaultPosition();
+      player.resetHealth();
+   }
+
+
 }
    

@@ -22,6 +22,7 @@ public class Entity {
     public int x, y;
     //INFORMATION OF THE CHARACTER
     private int maxLife,life;
+    private int mana, maxMana;
     private int speed;
     private int damage;
     private int def;//defence without shield
@@ -33,11 +34,14 @@ public class Entity {
     private int coin;
     private Entity currentWeapon;
     private Entity currentShield;
+    private Projectile projectile;
     //INFORMATION OF THE ITEM
     private int attackValue;
     private int defenseValue;
     private String name;
     private String description="";
+    //INFORMATION OF PROJECTILE
+    private int cost =0;
     //IMAGE
     private double width=1;
     private double height=1;
@@ -87,6 +91,8 @@ public class Entity {
     public int spriteCounter = 0;
     public int spriteNum = 1;
     public int HPbarCounter=0;
+    private int shotCountDown=0;
+
 
 
     public Entity(GamePanel gp) {
@@ -177,47 +183,18 @@ public class Entity {
     public UI getui() {return ui;}
     public void setX(int x) {this.x = x;}
     public void setY(int y) {this.y = y;}
-
-    public void setSolidAreaDefaultX(int solidAreaDefaultX) {
-        this.solidAreaDefaultX = solidAreaDefaultX;
-    }
-
-    public void setSolidAreaDefaultY(int solidAreaDefaultY) {
-        this.solidAreaDefaultY = solidAreaDefaultY;
-    }
-
-    public void setSolidAreaX(int solidAreaX) {
-        this.solidArea.x = solidAreaX;
-    }
-
-    public void setSolidAreaY(int solidAreaY) {
-        this.solidArea.y = solidAreaY;
-    }
+    public void setSolidAreaDefaultX(int solidAreaDefaultX) {this.solidAreaDefaultX = solidAreaDefaultX;}
+    public void setSolidAreaDefaultY(int solidAreaDefaultY) {this.solidAreaDefaultY = solidAreaDefaultY;}
+    public void setSolidAreaX(int solidAreaX) {this.solidArea.x = solidAreaX;}
+    public void setSolidAreaY(int solidAreaY) {this.solidArea.y = solidAreaY;}
     public void setSolidAreaWidth(int width){solidArea.width=width;}
     public void setSolidAreaHeight(int height){solidArea.height=height;}
-    public void setTriggerInteractX(int triggerInteractX) {
-        this.triggleInteract.x = triggerInteractX;
-    }
-
-    public void setTriggerInteractY(int triggerInteractY) {
-        this.triggleInteract.y = triggerInteractY;
-    }
-
-    public void setTriggerInteractWidth(int triggerInteractWidth) {
-        this.triggleInteract.x = triggerInteractWidth;
-    }
-
-    public void setTriggerInteractHeight(int triggerInteractHeight) {
-        this.triggleInteract.x = triggerInteractHeight;
-    }
-
-    public void setui(UI ui) {
-        this.ui = ui;
-    }
-
-    public int getDialogueIndex() {
-        return dialogueIndex;
-    }
+    public void setTriggerInteractX(int triggerInteractX) {this.triggleInteract.x = triggerInteractX;}
+    public void setTriggerInteractY(int triggerInteractY) {this.triggleInteract.y = triggerInteractY;}
+    public void setTriggerInteractWidth(int triggerInteractWidth) {this.triggleInteract.x = triggerInteractWidth;}
+    public void setTriggerInteractHeight(int triggerInteractHeight) {this.triggleInteract.x = triggerInteractHeight;}
+    public void setui(UI ui) {this.ui = ui;}
+    public int getDialogueIndex() {return dialogueIndex;}
     public int getMaxLife(){return maxLife;}
     public int getLife(){return life;}
     public void setMaxLife(int maxLife){this.maxLife=maxLife;}
@@ -285,6 +262,16 @@ public class Entity {
     public double getHeight(){return height;}
     public void setWidth(double width){this.width=width;}
     public void setHeight(double height){this.height=height;}
+    public int getCost(){return cost;}
+    public void setCost(int cost){this.cost=cost;}
+    public int getShotCountdown(){return shotCountDown;}
+    public void setShotCountdown(int shotCountDown){this.shotCountDown=shotCountDown;}
+    public Projectile getProjectile(){return projectile;}
+    public void setProjectile(Projectile projectile){this.projectile=projectile;}
+    public int getMana(){return mana;}
+    public void setMana(int mana){this.mana=mana;}
+    public int getMaxMana(){return maxMana;}
+    public void setMaxMana(int maxMana){this.maxMana=maxMana;}
     public void debug(Graphics2D g2){
         g2.setColor(new Color(255,255,255,100));
         g2.fillRect(x-gp.getPlayerX()+gp.getPlayerScreenX()+triggleInteract.x, y-gp.getPlayerY()+gp.getPlayerScreenY()+triggleInteract.y, triggleInteract.width, triggleInteract.height);
@@ -401,13 +388,7 @@ public class Entity {
         gp.getColCheckObject(this, false);
         boolean contactPlayer = gp.getColCheckPlayer(this);
         if(getType()==3&&contactPlayer==true){
-            if(gp.getPlayer().getInvincible()==false){
-                gp.playSoundEffect(7);
-                   int damageDeal = damage-gp.getPlayer().getDefense();
-                if(damageDeal<0) damageDeal=0;
-                gp.getPlayer().setLife(gp.getPlayer().getLife()-damageDeal);
-                gp.getPlayer().setInvincible(true);
-            }
+            damagePlayer(damage);
         }//when entity collide player, player loses hp
   
         if(collisionOn==false){
@@ -431,6 +412,15 @@ public class Entity {
 
     public void setAction() {}
     public void damageReaction(){}
+    public void damagePlayer(int damage){
+        if(gp.getPlayer().getInvincible()==false){
+            gp.playSoundEffect(7);
+            int damageDeal = damage-gp.getPlayer().getDefense();
+            if(damageDeal<0) damageDeal=0; 
+            gp.getPlayer().setLife(gp.getPlayer().getLife()-damageDeal);
+            gp.getPlayer().setInvincible(true);//RESET INVINCIBLE STATUS OF PLAYER
+        }
+    }
 
     public void speak() {
         if (ui.getDialogue(dialogueIndex) == null) {
@@ -514,7 +504,6 @@ public class Entity {
                 HPbarCounter=0;
             }
     }
-
     public void Transparency(Graphics2D g2,float alphaValue){
         g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alphaValue));
     }

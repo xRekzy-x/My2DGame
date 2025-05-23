@@ -35,11 +35,13 @@ public class Player extends Entity {
     private Entity monster;
     boolean chestOpenSoundEffect = true;
     private int attackSpriteCounter = 0;
-    //INVENTORY
+    // INVENTORY
     private List<Entity> inventory = new ArrayList<>();
-    private final int maxInventorySize=20;
-    int chestCount=0;
-    int chestCountTemp=0;
+    private final int maxInventorySize = 20;
+    //COUNTER
+    int chestCount = 0;
+    int chestCountTemp = 0;
+    int manaCooldownCount = 0;
 
     Random random = new Random();
 
@@ -116,6 +118,7 @@ public class Player extends Entity {
     public int getScreenY() {
         return screenY;
     }
+
     public int getNPCindex() {
         return NPCindex;
     }
@@ -123,18 +126,36 @@ public class Player extends Entity {
     public void setNPCindex(int NPCindex) {
         this.NPCindex = NPCindex;
     }
-    public List<Entity> getInventory(){return inventory;}
-    public void addInventory(Entity item){inventory.add(item);}
-    public void removeInventory(Entity item){inventory.remove(item);}
-    public int getMaxInventorySize(){return maxInventorySize;}
-    public void setDefaultValues() {
+
+    public List<Entity> getInventory() {
+        return inventory;
+    }
+
+    public void addInventory(Entity item) {
+        inventory.add(item);
+    }
+
+    public void removeInventory(Entity item) {
+        inventory.remove(item);
+    }
+
+    public int getMaxInventorySize() {
+        return maxInventorySize;
+    }
+
+    public void setDefaultPosition() {
         x = 300;
         y = 200;
-            
-        direction = "down";
+        direction = "sdown";
+    }
+
+    public void setDefaultValues() {
+        setDefaultPosition();
         // PLAYER STATUS
         setMaxLife(12);
         setLife(getMaxLife());
+        setMaxMana(4);
+        setMana(getMaxMana());
         setSpeed(4);
         setLevel(1);
         setExp(0);
@@ -143,20 +164,24 @@ public class Player extends Entity {
         setCurrentShield(new Shield(gp));
         setStrength(1);
         setDef(1);
-        setDamage(getStrength()*getCurrentWeapon().getAttackValue());
-        setDefense(getDef()*getCurrentShield().getDefenseValue());
+        setDamage(getStrength() * getCurrentWeapon().getAttackValue());
+        setDefense(getDef() * getCurrentShield().getDefenseValue());
         setCoin(0);
+        setProjectile(new Fireball(gp));
     }
-    public void setItems(){
+
+    public void resetHealth() {
+        setLife(getMaxLife());
+    }
+
+    public void setItems() {
+        inventory.clear();
         inventory.add(getCurrentWeapon());
         inventory.add(getCurrentShield());
-        inventory.add(new Key(gp));
-        inventory.add(new Key(gp));
-        inventory.add(new Key(gp));
-        inventory.add(new Key(gp));
-        inventory.add(new Key(gp));
     }
-    //public void defenseCalculation(){return defense*getCurrentShield().getDefenseValue();}
+
+    // public void defenseCalculation(){return
+    // defense*getCurrentShield().getDefenseValue();}
     public BufferedImage setup(String path, int width, int height) {
         BufferedImage image = null;
         ImageModification mod = new ImageModification();
@@ -164,7 +189,7 @@ public class Player extends Entity {
             image = ImageIO.read(getClass().getResourceAsStream("/res" + path + ".png"));
             image = mod.scaleImage(image, width, height);
         } catch (Exception e) {
-            System.out.println("ERROR WHEN TRYING TO LOAD"+path);
+            System.out.println("ERROR WHEN TRYING TO LOAD" + path);
             e.printStackTrace();
         }
         return image;
@@ -257,10 +282,11 @@ public class Player extends Entity {
         aright5 = setup("/player/aright5", gp.getTileSize() * 2, gp.getTileSize() * 3);
         aright6 = setup("/player/aright6", gp.getTileSize() * 2, gp.getTileSize() * 3);
 
-
     }
 
     public void update() {
+        // checkIfDied();
+        ensureLimit();
         // ATTACKING
         if (getAttacking()) {
             attack();
@@ -284,7 +310,7 @@ public class Player extends Entity {
                     direction = "right";
                 }
                 spriteCounter++;
-              
+
                 // CHECK TILE'S COLLISION
                 collisionOn = false;
                 gp.getColCheckTile(this);
@@ -293,7 +319,7 @@ public class Player extends Entity {
                 objectBehavior(objIndex);
                 // CHECK ENTITY'S COLLISION
                 monsterIndex = gp.getColCheckEntity(this, gp.getMonster());
-                NPCindex = gp.getColCheckEntity(this, gp.getNPC());         
+                NPCindex = gp.getColCheckEntity(this, gp.getNPC());
                 if (collisionOn == false) {
                     // switch(direction){
                     // case "up": y-=speed; break;
@@ -309,7 +335,7 @@ public class Player extends Entity {
                         x -= getSpeed();
                     if (key.rightPressed == true)
                         x += getSpeed();
-                } else {
+                } else {// khi va chạm
                     if (spriteCounter == 3 && monsterIndex == 999)
                         gp.playSoundEffect(5);
                 }
@@ -328,7 +354,7 @@ public class Player extends Entity {
                         spriteNum = 1;
                     spriteCounter = 0;
                 }
-            } else {
+            } else {// khi đứng im
                 switch (direction) {
                     case "up":
                         direction = "sup";
@@ -347,7 +373,6 @@ public class Player extends Entity {
                         spriteNum = 1;
                         break;
                 }
-
                 spriteCounter++;
                 if (spriteCounter > 10) {
                     if (spriteNum == 1)
@@ -361,13 +386,31 @@ public class Player extends Entity {
                     spriteCounter = 0;
                 }
             }
-               // CHECK ENTITY'S COLLISION
-                monsterIndex = gp.getColCheckEntity(this, gp.getMonster());
-                NPCindex = gp.getColCheckEntity(this, gp.getNPC());
+            // OUTSIDE (KHI CẢ ĐI CẢ ĐỨNG IM)
+            manaCooldown();
+            if(getShotCountdown()<30) setShotCountdown(getShotCountdown()+1);
+            if (key.getShotKeyPressed() && getProjectile().getAlive() == false && getShotCountdown()==30 && getProjectile().enoughMana(this)) {// alive= false để ensure ko bắn ra cục khác
+                                                                            // khi đang bắn 1 cục
+                String proDirect = getDirection();
+                int proX = getX();
+                int proY = getY();
+                if (proDirect=="up"||proDirect=="sup") proDirect = "up";
+                if (proDirect=="down"||proDirect=="sdown") proY+= gp.getTileSize();
+                if (proDirect=="right"||proDirect=="sright") proY+= gp.getTileSize()/2;
+                if (proDirect=="left"||proDirect=="sleft")  proY+= gp.getTileSize()/2;
+
+                getProjectile().set(proX, proY, proDirect, true, this);//SHOOTING
+                setMana(getMana()-getProjectile().getCost()); //substract mana
+                // gp.getProjectile().add(projectile);
+                gp.addProjectile(getProjectile());
+                setShotCountdown(0);
+            }
+            // CHECK ENTITY'S COLLISION
+            monsterIndex = gp.getColCheckEntity(this, gp.getMonster());
+            NPCindex = gp.getColCheckEntity(this, gp.getNPC());
 
             // CHECK EVENT
             gp.getEvent().checkEvent();
-
             // CHECK INTERACTION OF NPC
             NPCindex = gp.getColCheckInteract(this, gp.getNPC());
             interactNPC(NPCindex);
@@ -381,8 +424,14 @@ public class Player extends Entity {
             interactMonster(monsterIndex);
             // CHECK EVENT
             gp.getKey().setEnterPressed(false);
-
         }
+    }
+
+    public void ensureLimit() {
+        if (getLife() > getMaxLife()) setLife(getMaxLife());
+        if (getLife() <= 0) gp.setGameState(gp.getOverState());
+        if (getMana() > getMaxMana()) setMana(getMaxMana());
+        if (getMana() < 0) setMana(0);
     }
 
     public void debug(Graphics2D g2) {
@@ -391,32 +440,36 @@ public class Player extends Entity {
                 (gp.getPlayerScreenX() + getSolidAreaX()),
                 (gp.getPlayerScreenY() + getSolidAreaY()),
                 getSolidAreaWidth(), getSolidAreaHeight());
-        g2.setColor(new Color(100,100,100,100));
-        switch(direction){
-            case "up": case "sup":
+        g2.setColor(new Color(100, 100, 100, 100));
+        switch (direction) {
+            case "up":
+            case "sup":
                 g2.fillRect(
-                    (gp.getPlayerScreenX()+ getSolidAreaX()-24),
-                    (gp.getPlayerScreenY()-getAttackingAreaHeight() + getSolidAreaY()),
-                    getAttackingAreaWidth(), getAttackingAreaHeight());
-                    break;
-            case "down": case "sdown":
+                        (gp.getPlayerScreenX() + getSolidAreaX() - 24),
+                        (gp.getPlayerScreenY() - getAttackingAreaHeight() + getSolidAreaY()),
+                        getAttackingAreaWidth(), getAttackingAreaHeight());
+                break;
+            case "down":
+            case "sdown":
                 g2.fillRect(
-                    (gp.getPlayerScreenX()+ getSolidAreaX()-24),
-                    (gp.getPlayerScreenY()+getAttackingAreaHeight()+ getSolidAreaY() ),
-                    getAttackingAreaWidth(), getAttackingAreaHeight());
-                    break;
-            case "left": case "sleft":
-              g2.fillRect(
-                    (gp.getPlayerScreenX()+ getSolidAreaX()-24- getAttackingAreaWidth()),
-                    (gp.getPlayerScreenY()+ getSolidAreaY() ),
-                    getAttackingAreaWidth(), getAttackingAreaHeight());
-                    break;
-            case "right": case "sright":
-              g2.fillRect(
-                    (gp.getPlayerScreenX()+ getSolidAreaX()-24+ getAttackingAreaWidth()),
-                    (gp.getPlayerScreenY()+ getSolidAreaY() ),
-                    getAttackingAreaWidth(), getAttackingAreaHeight());
-                    break;
+                        (gp.getPlayerScreenX() + getSolidAreaX() - 24),
+                        (gp.getPlayerScreenY() + getAttackingAreaHeight() + getSolidAreaY()),
+                        getAttackingAreaWidth(), getAttackingAreaHeight());
+                break;
+            case "left":
+            case "sleft":
+                g2.fillRect(
+                        (gp.getPlayerScreenX() + getSolidAreaX() - 24 - getAttackingAreaWidth()),
+                        (gp.getPlayerScreenY() + getSolidAreaY()),
+                        getAttackingAreaWidth(), getAttackingAreaHeight());
+                break;
+            case "right":
+            case "sright":
+                g2.fillRect(
+                        (gp.getPlayerScreenX() + getSolidAreaX() - 24 + getAttackingAreaWidth()),
+                        (gp.getPlayerScreenY() + getSolidAreaY()),
+                        getAttackingAreaWidth(), getAttackingAreaHeight());
+                break;
         }
 
     }
@@ -447,17 +500,37 @@ public class Player extends Entity {
                     }
                 }
                 if (getAttacking()) {
-                    tempX-=24;
-                    if (spriteNum == 1) {image = aup1;}
-                    if (spriteNum == 2) {image = aup2;}
-                    if (spriteNum == 3) {image = aup3;}
-                    if (spriteNum == 4) {image = aup4;}
-                    if (spriteNum == 5) {image = aup5;}
-                    if (spriteNum == 6) {image = aup6;}
-                    if (spriteNum == 7) {image = aup7;}
-                    if (spriteNum == 8) {image = aup8;}
-                    if (spriteNum == 9) {image = aup9;}
-                    if (spriteNum == 10) {image = aup10;}
+                    tempX -= 24;
+                    if (spriteNum == 1) {
+                        image = aup1;
+                    }
+                    if (spriteNum == 2) {
+                        image = aup2;
+                    }
+                    if (spriteNum == 3) {
+                        image = aup3;
+                    }
+                    if (spriteNum == 4) {
+                        image = aup4;
+                    }
+                    if (spriteNum == 5) {
+                        image = aup5;
+                    }
+                    if (spriteNum == 6) {
+                        image = aup6;
+                    }
+                    if (spriteNum == 7) {
+                        image = aup7;
+                    }
+                    if (spriteNum == 8) {
+                        image = aup8;
+                    }
+                    if (spriteNum == 9) {
+                        image = aup9;
+                    }
+                    if (spriteNum == 10) {
+                        image = aup10;
+                    }
                 }
                 break;
             case "down":
@@ -537,13 +610,25 @@ public class Player extends Entity {
                     }
                 }
                 if (getAttacking()) {
-                    tempX-=24;
-                    if (spriteNum == 1) {image = aright1;}
-                    if (spriteNum == 2) {image = aright2;}
-                    if (spriteNum == 3) {image = aright3;}
-                    if (spriteNum == 4) {image = aright4;}
-                    if (spriteNum == 5) {image = aright5;}
-                    if (spriteNum == 6) {image = aright6;}
+                    tempX -= 24;
+                    if (spriteNum == 1) {
+                        image = aright1;
+                    }
+                    if (spriteNum == 2) {
+                        image = aright2;
+                    }
+                    if (spriteNum == 3) {
+                        image = aright3;
+                    }
+                    if (spriteNum == 4) {
+                        image = aright4;
+                    }
+                    if (spriteNum == 5) {
+                        image = aright5;
+                    }
+                    if (spriteNum == 6) {
+                        image = aright6;
+                    }
                 }
                 break;
             case "left":
@@ -568,13 +653,25 @@ public class Player extends Entity {
                     }
                 }
                 if (getAttacking()) {
-                    tempX-=24;
-                    if (spriteNum == 1) {image = aleft1;}
-                    if (spriteNum == 2) {image = aleft2;}
-                    if (spriteNum == 3) {image = aleft3;}
-                    if (spriteNum == 4) {image = aleft4;}
-                    if (spriteNum == 5) {image = aleft5;}
-                    if (spriteNum == 6) {image = aleft6;}
+                    tempX -= 24;
+                    if (spriteNum == 1) {
+                        image = aleft1;
+                    }
+                    if (spriteNum == 2) {
+                        image = aleft2;
+                    }
+                    if (spriteNum == 3) {
+                        image = aleft3;
+                    }
+                    if (spriteNum == 4) {
+                        image = aleft4;
+                    }
+                    if (spriteNum == 5) {
+                        image = aleft5;
+                    }
+                    if (spriteNum == 6) {
+                        image = aleft6;
+                    }
                 }
                 break;
             case "sdown":
@@ -627,67 +724,135 @@ public class Player extends Entity {
                 }
                 break;
             case "sup":
-                if(!getAttacking()){
-                    if (spriteNum == 1) { image = sup1;}
-                    if (spriteNum == 2) {image = sup2;}
-                    if (spriteNum == 3) {image = sup3;}
-                    if (spriteNum == 4) {image = sup4;}
+                if (!getAttacking()) {
+                    if (spriteNum == 1) {
+                        image = sup1;
+                    }
+                    if (spriteNum == 2) {
+                        image = sup2;
+                    }
+                    if (spriteNum == 3) {
+                        image = sup3;
+                    }
+                    if (spriteNum == 4) {
+                        image = sup4;
+                    }
                 }
                 if (getAttacking()) {
-                    tempX-=24;
-                    if (spriteNum == 1) {image = aup1;}
-                    if (spriteNum == 2) {image = aup2;}
-                    if (spriteNum == 3) {image = aup3;}
-                    if (spriteNum == 4) {image = aup4;}
-                    if (spriteNum == 5) {image = aup5;}
-                    if (spriteNum == 6) {image = aup6;}
-                    if (spriteNum == 7) {image = aup7;}
-                    if (spriteNum == 8) {image = aup8;}
-                    if (spriteNum == 9) {image = aup9;}
-                    if (spriteNum == 10) {image = aup10;}
+                    tempX -= 24;
+                    if (spriteNum == 1) {
+                        image = aup1;
+                    }
+                    if (spriteNum == 2) {
+                        image = aup2;
+                    }
+                    if (spriteNum == 3) {
+                        image = aup3;
+                    }
+                    if (spriteNum == 4) {
+                        image = aup4;
+                    }
+                    if (spriteNum == 5) {
+                        image = aup5;
+                    }
+                    if (spriteNum == 6) {
+                        image = aup6;
+                    }
+                    if (spriteNum == 7) {
+                        image = aup7;
+                    }
+                    if (spriteNum == 8) {
+                        image = aup8;
+                    }
+                    if (spriteNum == 9) {
+                        image = aup9;
+                    }
+                    if (spriteNum == 10) {
+                        image = aup10;
+                    }
                 }
                 break;
-                
+
             case "sleft":
-            if(!getAttacking()){
-                if (spriteNum == 1) {image = sleft1;}
-                if (spriteNum == 2) {image = sleft2;}
-                if (spriteNum == 3) {image = sleft3;}
-                if (spriteNum == 4) {image = sleft4;}
-            }
-              if (getAttacking()) {
-                tempX-=24;
-                if (spriteNum == 1) {image = aleft1;}
-                if (spriteNum == 2) {image = aleft2;}
-                if (spriteNum == 3) {image = aleft3;}
-                if (spriteNum == 4) {image = aleft4;}
-                if (spriteNum == 5) {image = aleft5;}
-                if (spriteNum == 6) {image = aleft6;}
-            }
+                if (!getAttacking()) {
+                    if (spriteNum == 1) {
+                        image = sleft1;
+                    }
+                    if (spriteNum == 2) {
+                        image = sleft2;
+                    }
+                    if (spriteNum == 3) {
+                        image = sleft3;
+                    }
+                    if (spriteNum == 4) {
+                        image = sleft4;
+                    }
+                }
+                if (getAttacking()) {
+                    tempX -= 24;
+                    if (spriteNum == 1) {
+                        image = aleft1;
+                    }
+                    if (spriteNum == 2) {
+                        image = aleft2;
+                    }
+                    if (spriteNum == 3) {
+                        image = aleft3;
+                    }
+                    if (spriteNum == 4) {
+                        image = aleft4;
+                    }
+                    if (spriteNum == 5) {
+                        image = aleft5;
+                    }
+                    if (spriteNum == 6) {
+                        image = aleft6;
+                    }
+                }
                 break;
             case "sright":
-            if(!getAttacking()){
-                if (spriteNum == 1) {image = sright1;}
-                if (spriteNum == 2) {image = sright2;}
-                if (spriteNum == 3) {image = sright3;}
-                if (spriteNum == 4) {image = sright4;}
-            }
-            if (getAttacking()) {
-                tempX-=24;
-                if (spriteNum == 1) {image = aright1;}
-                if (spriteNum == 2) {image = aright2;}
-                if (spriteNum == 3) {image = aright3;}
-                if (spriteNum == 4) {image = aright4;}
-                if (spriteNum == 5) {image = aright5;}
-                if (spriteNum == 6) {image = aright6;}
-            }
+                if (!getAttacking()) {
+                    if (spriteNum == 1) {
+                        image = sright1;
+                    }
+                    if (spriteNum == 2) {
+                        image = sright2;
+                    }
+                    if (spriteNum == 3) {
+                        image = sright3;
+                    }
+                    if (spriteNum == 4) {
+                        image = sright4;
+                    }
+                }
+                if (getAttacking()) {
+                    tempX -= 24;
+                    if (spriteNum == 1) {
+                        image = aright1;
+                    }
+                    if (spriteNum == 2) {
+                        image = aright2;
+                    }
+                    if (spriteNum == 3) {
+                        image = aright3;
+                    }
+                    if (spriteNum == 4) {
+                        image = aright4;
+                    }
+                    if (spriteNum == 5) {
+                        image = aright5;
+                    }
+                    if (spriteNum == 6) {
+                        image = aright6;
+                    }
+                }
                 break;
         }
         g2.drawImage(image, tempX, tempY, null);
     }
 
     public int getAttackX() {
-        int attX = x-12;
+        int attX = x - 12;
         switch (direction) {
             case "left":
                 attX -= getAttackingAreaWidth();
@@ -715,11 +880,11 @@ public class Player extends Entity {
                 attY -= getAttackingAreaHeight();
                 break;
             // case "down":
-            //     attY += getAttackingAreaHeight();
-            //     break;
+            // attY += getAttackingAreaHeight();
+            // break;
             // case "sdown":
-            //     attY += getAttackingAreaHeight();
-            //     break;
+            // attY += getAttackingAreaHeight();
+            // break;
         }
         return attY;
     }
@@ -728,54 +893,63 @@ public class Player extends Entity {
         int solidAreaWidth = getSolidAreaWidth(), solidAreaHeight = getSolidAreaHeight();
         setSolidAreaWidth(getAttackingAreaWidth());
         setSolidAreaHeight(getAttackingAreaHeight());
-        damageMonster(gp.getColCheckEntity(this, gp.getMonster()));
+        damageMonster(gp.getColCheckEntity(this, gp.getMonster()),getDamage());
         setSolidAreaWidth(solidAreaWidth);
         setSolidAreaHeight(solidAreaHeight);
         attackSpriteCounter++;
-        switch(direction){
-            case"up":case"sup":case"down":case"sdown":
+        switch (direction) {
+            case "up":
+            case "sup":
+            case "down":
+            case "sdown":
                 if (attackSpriteCounter <= 5) {
                     spriteNum = 1;
-                }
-                else if(attackSpriteCounter%5==1){
+                } else if (attackSpriteCounter % 5 == 1) {
                     spriteNum++;
                 }
-                if (spriteCounter == 11) gp.playSoundEffect(8);
-                if (spriteCounter == 31) gp.playSoundEffect(8);
+                if (spriteCounter == 11)
+                    gp.playSoundEffect(8);
+                if (spriteCounter == 31)
+                    gp.playSoundEffect(8);
                 if (attackSpriteCounter > 50) {
                     spriteNum = 1;
                     attackSpriteCounter = 0;
                     setAttacking(false);
                 }
-            break;
-            case"left":case"sleft":case"right":case"sright":
+                break;
+            case "left":
+            case "sleft":
+            case "right":
+            case "sright":
                 if (attackSpriteCounter <= 8) {
                     spriteNum = 1;
-                }
-                else if(attackSpriteCounter%8==1){
+                } else if (attackSpriteCounter % 8 == 1) {
                     spriteNum++;
                 }
-                if (spriteCounter == 11) gp.playSoundEffect(8);
-                if (spriteCounter == 31) gp.playSoundEffect(8);
+                if (spriteCounter == 11)
+                    gp.playSoundEffect(8);
+                if (spriteCounter == 31)
+                    gp.playSoundEffect(8);
                 if (attackSpriteCounter > 48) {
                     spriteNum = 1;
                     attackSpriteCounter = 0;
                     setAttacking(false);
                 }
-            break;
-    }
-    }
-    public void pickupObject(int ObjIndex){
-        if(inventory.size()<=maxInventorySize){
-            inventory.add(gp.getObj(ObjIndex));
-            gp.getui().addMessage("you've got a "+gp.getObj(ObjIndex).getName());
-            gp.setObj(null, ObjIndex);
+                break;
         }
-        else{
+    }
+
+    public void pickupObject(int ObjIndex) {
+        if (inventory.size() <= maxInventorySize) {
+            inventory.add(gp.getObj(ObjIndex));
+            gp.getui().addMessage("you've got a " + gp.getObj(ObjIndex).getName());
+            gp.setObj(null, ObjIndex);
+        } else {
             gp.getui().addMessage("Inventory full!");
         }
-        
+
     }
+
     public void objectBehavior(int ObjIndex) {
         if (ObjIndex != 999) {// 999 is the index of monster, NPC ...
             switch (gp.getObjName(ObjIndex)) {
@@ -787,22 +961,22 @@ public class Player extends Entity {
 
                 case "Chest":
                     for (int i = 0; i < inventory.size(); i++) {
-                        if (inventory.get(i).getName().matches("Key")&&
-                        gp.getObj(ObjIndex).getName().equals("Chest")) {
+                        if (inventory.get(i).getName().matches("Key") &&
+                                gp.getObj(ObjIndex).getName().equals("Chest")) {
                             gp.getObj(ObjIndex).setSdown1(setup("/obj/PLEASE", 1));
                             gp.getObj(ObjIndex).setName("UsedChest");
                             gp.setObj(new UltraSword(gp), 5, 5);
                             gp.setObj(new UltraShield(gp), 6, 5);
-                            
+
                             if (chestOpenSoundEffect) {
                                 gp.playSoundEffect(3);
                                 chestOpenSoundEffect = false;
                             }
                             inventory.remove(i);
-                            usedKey=true;
+                            usedKey = true;
                             break;
-                        } else{
-                                gp.getui().showMessage("You need a key");
+                        } else {
+                            gp.getui().showMessage("You need a key");
                         }
                     }
                     break;
@@ -816,7 +990,7 @@ public class Player extends Entity {
                     gp.getui().addMessage("Speed up!");
                     break;
                 case "StrengthPotion":
-                  
+
                     // setStrength(getStrength()+1);
                     // randomX = random.nextInt(gp.getMaxWorldCol());
                     // randomY = random.nextInt(gp.getMaxWorldRow());
@@ -827,13 +1001,13 @@ public class Player extends Entity {
                     // System.out.println(randomY);
                     // System.out.println(gp.getExactTile(checkIndex).getGetCollision());
                     // while (gp.getExactTile(checkIndex).getGetCollision()) {
-                    //     if (randomX < gp.getMaxWorldCol() - 1)
-                    //         randomX++;
-                    //     else if (randomY < gp.getMaxWorldRow())
-                    //         randomY++;
-                    //     else
-                    //         randomY--;
-                    //     checkIndex = mapTile[randomY][randomX];
+                    // if (randomX < gp.getMaxWorldCol() - 1)
+                    // randomX++;
+                    // else if (randomY < gp.getMaxWorldRow())
+                    // randomY++;
+                    // else
+                    // randomY--;
+                    // checkIndex = mapTile[randomY][randomX];
                     // }
                     // gp.getObj(ObjIndex).setX(randomX * gp.getTileSize());
                     // gp.getObj(ObjIndex).setY(randomY * gp.getTileSize());
@@ -848,8 +1022,7 @@ public class Player extends Entity {
                     pickupObject(ObjIndex);
                     break;
             }
-        }
-         else {
+        } else {
             try {
                 gp.getObj(0).setImage(ImageIO.read(getClass().getResourceAsStream("/res/obj/chest.png")));
             } catch (IOException e) {
@@ -857,6 +1030,7 @@ public class Player extends Entity {
             }
         }
     }
+
     public void interactNPC(int NPCindex) {
         if (NPCindex != 999) {
             switch (NPCindex) {
@@ -890,49 +1064,71 @@ public class Player extends Entity {
 
     public void interactMonster(int monsterIndex) {
         if (monsterIndex != 999) {
-            if (getInvincible() == false) {
-                int damageDeal = gp.getExactMonster(monsterIndex).getDamage()-gp.getPlayer().getDefense();
-                if(damageDeal<0) damageDeal=0;
+            if (getInvincible() == false && !gp.getExactMonster(monsterIndex).getDying()) {
+                int damageDeal = gp.getExactMonster(monsterIndex).getDamage() - gp.getPlayer().getDefense();
+                if (damageDeal < 0)
+                    damageDeal = 0;
                 gp.playSoundEffect(7);
                 setLife(getLife() - damageDeal);
                 setInvincible(true);
             }
         }
-    }//when player collide monster, player loses hp
-    public void damageMonster(int i) {
+    }// when player collide monster, player loses hp
+
+    public void damageMonster(int i, int damage) {
         if (i != 999) {
             if (gp.getExactMonster(i).getInvincible() == false) {
-                int damageDeal = getDamage()-gp.getExactMonster(i).getDefense();
-                if(damageDeal<0) damageDeal=0;
+                int damageDeal = damage - gp.getExactMonster(i).getDefense();
+                if (damageDeal < 0)
+                    damageDeal = 0;
                 gp.playSoundEffect(6);
-                gp.getExactMonster(i).setLife(gp.getExactMonster(i).getLife() - damageDeal);//reduce the health
-                gp.getui().addMessage("-"+getDamage());
+                gp.getExactMonster(i).setLife(gp.getExactMonster(i).getLife() - damageDeal);// reduce the health
+                gp.getui().addMessage("-" + damageDeal);
                 gp.getExactMonster(i).setInvincible(true);
                 gp.getExactMonster(i).damageReaction();
-                System.out.println("hit");
                 if (gp.getExactMonster(i).getLife() <= 0) {
                     gp.getExactMonster(i).setDying(true);
                     gp.getui().addMessage("You killed a " + gp.getExactMonster(i).getName());
-                    
+                    setExp(getExp() + gp.getExactMonster(i).getExp());
+                    gp.getui().addMessage("+" + gp.getExactMonster(i).getExp() + " EXP");
+                    checkLevelUp();
                 }
             }
-        } 
-    }//when player attact monster, monster lose hp
-    public void selectItem(){
-           //SELECTING ITEM
-        if(inventory.get(gp.getui().getItemIndexInInventory()).getType()==getSwordType()){
+        }
+    }// when player attact monster, monster lose hp
+
+    public void selectItem() {
+        if (inventory.get(gp.getui().getItemIndexInInventory()).getType() == getSwordType()) {
             setCurrentWeapon(inventory.get(gp.getui().getItemIndexInInventory()));
             gp.getKey().setEnterPressed(false);
         }
-        if(inventory.get(gp.getui().getItemIndexInInventory()).getType()==getShieldType()){
+        if (inventory.get(gp.getui().getItemIndexInInventory()).getType() == getShieldType()) {
             setCurrentShield(inventory.get(gp.getui().getItemIndexInInventory()));
             gp.getKey().setEnterPressed(false);
         }
-        if(inventory.get(gp.getui().getItemIndexInInventory()).getType()==getConsumableType()){
-            setStrength(getStrength()+3);
+        if (inventory.get(gp.getui().getItemIndexInInventory()).getType() == getConsumableType()) {
+            setStrength(getStrength() + 3);
             inventory.remove(gp.getui().getItemIndexInInventory());
             gp.getKey().setEnterPressed(false);
         }
-        
+    }
+
+    public void checkLevelUp() {
+        if (getExp() >= getNextLevelExp()) {
+            setLevel(getLevel() + 1);
+            setExp(0);
+            setNextLevelExp(getNextLevelExp() * 2);
+            setMaxLife(getMaxLife() + 4);
+            setDamage(getDamage() + 1);
+            setLife(getMaxLife());// heal to full health
+            gp.playSoundEffect(10);
+        }
+    }
+    public void manaCooldown(){
+        if(manaCooldownCount<180) manaCooldownCount++;
+        if(manaCooldownCount==180 && getMana()<getMaxMana()){
+            setMana(getMana()+1);
+            manaCooldownCount=0;
+        }
     }
 }

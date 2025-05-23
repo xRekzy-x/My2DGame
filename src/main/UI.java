@@ -9,6 +9,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import objects.Heart;
+import objects.Mana;
 import objects.StrengPotion;
 import main.ImageModification;
 
@@ -29,8 +30,9 @@ public class UI {
     private String currentDialogue="";
     private int commandNumber =0;
     private String dialogues[] = new String[20];
-    private BufferedImage heart1,heart2,heart3,heart4,heart5;
+    private BufferedImage heart1,heart2,heart3,heart4,heart5,mana_full,mana_blank;
     private Heart heart;
+    private Mana mana;
     StrengPotion strengPotion;
     ArrayList<String> combat= new ArrayList<>(); 
     ArrayList<Integer> combatCounter = new ArrayList<>();
@@ -57,7 +59,10 @@ public class UI {
         heart3 = heart.getHeart3();
         heart4 = heart.getHeart4();
         heart5 = heart.getHeart5();
-        
+
+        mana = new Mana(gp);
+        mana_blank= mana.getManaBlank();
+        mana_full=mana.getManaFull();  
     }
 
     //GETTER SETTER
@@ -133,6 +138,9 @@ public class UI {
         if(gp.getGameState()==gp.getCharacterState()){
             drawCharacterScreen();
             drawInventory();
+        }
+        if(gp.getGameState()==gp.getOverState()){
+            drawOverScreen();
         }
     }
     public void drawPauseScreen(){
@@ -217,7 +225,6 @@ public class UI {
             x+= gp.getTileSize()+10;
         }
         x = gp.getTileSize()/2;
-        y = gp.getTileSize()/2;
         count = 0;
         while(count<gp.getPlayer().getLife()){
             g2.drawImage(heart4, x, y,null);
@@ -229,6 +236,21 @@ public class UI {
             if(count<gp.getPlayer().getLife()) g2.drawImage(heart1, x, y,null);
             count++;
             x+= gp.getTileSize()+10;
+        }
+        x=gp.getTileSize()/2;
+        y=(int)(gp.getTileSize()*1.5);
+        count=0;
+        while(count<gp.getPlayer().getMaxMana()){
+            g2.drawImage(mana_blank, x, y,null);
+            count++;
+            x+= 35;
+        }
+        x=gp.getTileSize()/2;
+        count=0;
+        while(count<gp.getPlayer().getMana()){
+            g2.drawImage(mana_full, x, y,null);
+            count++;
+            x+= 35;
         }
     }
     public void drawCharacterScreen(){
@@ -246,7 +268,7 @@ public class UI {
         g2.setFont(arial_20I);
         g2.drawString("Level: ",textX,textY);
         textY+=lineHeight;
-         g2.drawString("Exp ",textX,textY);
+        g2.drawString("Exp ",textX,textY);
         textY+=lineHeight;
         g2.drawString("Next level: ",textX,textY);
         textY+=lineHeight;
@@ -255,6 +277,8 @@ public class UI {
         g2.drawString("Defense: ",textX,textY);
         textY+=lineHeight;
         g2.drawString("Health: ",textX,textY);
+        textY+=lineHeight;
+        g2.drawString("Mana: ",textX,textY);
         textY+=lineHeight;
         g2.drawString("Coin: ",textX,textY);
         textY+=lineHeight+20;
@@ -285,6 +309,10 @@ public class UI {
         textY+=lineHeight;
         g2.drawString(value, textX, textY);
           value = String.valueOf(gp.getPlayer().getLife()+"/"+gp.getPlayer().getMaxLife());
+        textX=getXForRightText(value, tailX);
+        textY+=lineHeight;
+        g2.drawString(value, textX, textY);
+            value = String.valueOf(gp.getPlayer().getMana()+"/"+gp.getPlayer().getMaxMana());
         textX=getXForRightText(value, tailX);
         textY+=lineHeight;
         g2.drawString(value, textX, textY);
@@ -401,5 +429,32 @@ public class UI {
             y+=distanceBetweenLine;
         }
         
+    }
+    public void drawOverScreen(){
+        g2.setColor(new Color(255,0,0,150));
+        g2.fillRect(0, 0, gp.getScreenWidth(), gp.getScreenHeight());
+        String text = "GAME OVER";
+        int x = getXForCenterText(text);
+        int y = gp.getTileSize()*4;
+        //DRAW SHADOW OF TEXT
+        g2.setFont(russo_one_45B);
+        g2.setColor(Color.black);
+        g2.drawString(text, x, y);
+        //DRAW TEXT
+        g2.setColor(Color.white);
+        g2.drawString(text, x-4, y-4);
+        //retry
+        g2.setFont(arial_40);
+        text = "Retry";
+        x=getXForCenterText(text);
+        y+=150;
+        g2.drawString(text, x, y);
+        if(commandNumber==0) g2.drawString(">", x-40, y);
+        //Quit
+        text = "Quit";
+        x=getXForCenterText(text);
+        y+=50;
+        g2.drawString(text, x, y);
+        if(commandNumber==1) g2.drawString(">", x-40, y);
     }
 }

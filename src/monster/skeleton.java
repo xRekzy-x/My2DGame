@@ -19,10 +19,12 @@ public class skeleton extends Entity {
       this.setSolidAreaDefaultY(this.getSolidAreaY());
 
       //SET BASIC INFORMATION
+      super.setName("Skeleton");
       super.setSpeed(1);
       super.setMaxLife(1000);
       super.setLife(getMaxLife());
       super.setDamage(10);
+      super.setExp(2);
 
       //SETTING
       super.setType(3);
