@@ -9,7 +9,7 @@ public class GamePlay {
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);// this lets the window properly close when user clicks
                                                               // the button X 
         window.setResizable(false);
-        window.setTitle("jav game");
+        window.setTitle("_xOas");
 
         GamePanel gamepanel = new GamePanel();
         window.add(gamepanel);

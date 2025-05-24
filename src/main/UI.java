@@ -451,10 +451,16 @@ public class UI {
         g2.drawString(text, x, y);
         if(commandNumber==0) g2.drawString(">", x-40, y);
         //Quit
-        text = "Quit";
+        text = "Respawn("+gp.getRespawnTicket()+" left)";
         x=getXForCenterText(text);
         y+=50;
         g2.drawString(text, x, y);
         if(commandNumber==1) g2.drawString(">", x-40, y);
+        //Quit
+        text = "Quit";
+        x=getXForCenterText(text);
+        y+=50;
+        g2.drawString(text, x, y);
+        if(commandNumber==2) g2.drawString(">", x-40, y);
     }
 }

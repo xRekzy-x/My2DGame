@@ -55,6 +55,7 @@ public class Event {
         if(canTouchEvent){   
             if(hit(1,7,"any")==true){damagePit(gp.getDialogueState());} 
         }
+        if(gp.getKey().getEnterPressed()) gp.setGameState(gp.getPlayState());
         
     }
     public boolean hit(int col, int row, String reqDirection){

@@ -21,7 +21,7 @@ public class skeleton extends Entity {
       //SET BASIC INFORMATION
       super.setName("Skeleton");
       super.setSpeed(1);
-      super.setMaxLife(1000);
+      super.setMaxLife(400);
       super.setLife(getMaxLife());
       super.setDamage(10);
       super.setExp(2);

@@ -146,13 +146,19 @@ public class KeyHandler implements KeyListener {
       }
    }
    public void overState(int code){
-      changeCommand(code, 2);
+      changeCommand(code, 3);
       if (code == KeyEvent.VK_ENTER) {
          if (this.gp.getui().getCommandNumber() == 0) {
             gp.resetGame();
             this.gp.setGameState(gp.getPlayState());
          }
          if (this.gp.getui().getCommandNumber() == 1) {
+            if(gp.getRespawnTicket()>0){
+               gp.Respawn();
+               this.gp.setGameState(gp.getPlayState());
+            }
+         }
+         if (this.gp.getui().getCommandNumber() == 2) {
             System.exit(0);
          }
       }

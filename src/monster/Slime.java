@@ -25,7 +25,7 @@ public class Slime extends Entity {
         //SET BASIC INFORMATION
         super.setDamage(3);
         super.setSpeed(1);
-        super.setMaxLife(50);
+        super.setMaxLife(200);
         super.setLife(getMaxLife());
         super.setExp(1);
         super.setProjectile(new Rock(gp));

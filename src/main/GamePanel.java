@@ -11,15 +11,16 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 
 import javax.swing.JPanel;
 import javax.swing.plaf.DimensionUIResource;
 import objects.Boots;
 import objects.Chest;
+import objects.Exp;
 import objects.Key;
 import objects.StrengPotion;
 import objects.SuperObj;
@@ -82,6 +83,10 @@ public class GamePanel extends JPanel implements Runnable {
    private ArrayList<Projectile> projectileList = new ArrayList<>();
    private ArrayList<Entity> entityList = new ArrayList<>();
 
+   //COUNTER
+   private int round=1;
+   private int respawnTicket = 3;
+
    public GamePanel() {
       this.player = new Player(this, this.key);
       this.playerX = 100;
@@ -104,7 +109,8 @@ public class GamePanel extends JPanel implements Runnable {
    public boolean getColCheckPlayer(Entity entity) {return colCheck.checkPlayer(entity);}
    public int getColCheckEntity(Entity entity, Entity[] target) {return this.colCheck.checkEntity(entity, target);}
    public int getColCheckInteract(Entity entity, Entity[] target) {return this.colCheck.checkInteract(entity, target);}
-
+   public int getRespawnTicket(){return respawnTicket;}
+   public void setRespawnTicket(int ticket){this.respawnTicket=ticket;}
    public void setObjects() {
       this.obj[0] = new Chest(this);
       this.obj[0].setX(5*tileSize);
@@ -124,9 +130,12 @@ public class GamePanel extends JPanel implements Runnable {
       this.obj[5] = new StrengPotion(this);
       this.obj[5].setX(768);
       this.obj[5].setY(576);
-      // this.obj[6] = new UltraSword(this);
-      // this.obj[6].setX(tileSize*5);
-      // this.obj[6].setY(tileSize*3);
+      this.obj[6] = new Exp(this);
+      this.obj[6].setX(tileSize*5);
+      this.obj[6].setY(tileSize*3);
+      this.obj[7] = new Exp(this);
+      this.obj[7].setX(tileSize*6);
+      this.obj[7].setY(tileSize*3);
       //7 đã có
    }
    public void setObj(Entity obj,int x, int y){
@@ -145,6 +154,21 @@ public class GamePanel extends JPanel implements Runnable {
       this.npc[1].setX(144);
       this.npc[1].setY(96);
    }
+   public int[] generateRandomLocation(){
+      int[] location = new int[2];
+      int x;
+      int y;
+      int[][] allLocation = getOverLay2();
+      Random random = new Random();
+      do{
+         x = random.nextInt(maxWorldCol);
+         y = random.nextInt(maxWorldRow);
+      }while(getExactTile(allLocation[y][x]).getGetCollision());
+      location[0]=x*tileSize;
+      location[1]=y*tileSize;
+      return location;
+
+   }
    public void setMonster(){
       int i = 3;
       monster[0] = new skeleton(this);
@@ -153,34 +177,43 @@ public class GamePanel extends JPanel implements Runnable {
       // monster[1]=new Slime(this);
       // monster[1].setX(0*tileSize);
       // monster[1].setY(6*tileSize);
-      monster[2]=new Slime(this);
-      monster[2].setX(getPlayerX()+tileSize);
-      monster[2].setY(getPlayerY()-tileSize);
-      monster[3]=new Slime(this);
-      monster[3].setX(tileSize*1);
-      monster[3].setY(tileSize*2);
-      i++;
-      monster[i]=new Slime(this);
-      monster[i].setX(tileSize*2);
-      monster[i].setY(tileSize*2);
-        i++;
-      monster[i]=new Slime(this);
-      monster[i].setX(tileSize*3);
-      monster[i].setY(tileSize*2);
-        i++;
-      monster[i]=new Slime(this);
-      monster[i].setX(tileSize*4);
-      monster[i].setY(tileSize*2);
-        i++;
-      monster[i]=new Slime(this);
-      monster[i].setX(tileSize*5);
-      monster[i].setY(tileSize*2);
-        i++;
-      monster[i]=new skeleton(this);
-      monster[i].setX(tileSize*6);
-      monster[i].setY(tileSize*2);
-      
-
+      // monster[2]=new Slime(this);
+      // monster[2].setX(getPlayerX()+tileSize);
+      // monster[2].setY(getPlayerY()-tileSize);
+      // monster[3]=new Slime(this);
+      // monster[3].setX(tileSize*1);
+      // monster[3].setY(tileSize*2);
+      // i++;
+      // monster[i]=new Slime(this);
+      // monster[i].setX(tileSize*2);
+      // monster[i].setY(tileSize*2);
+      //   i++;
+      // monster[i]=new Slime(this);
+      // monster[i].setX(tileSize*3);
+      // monster[i].setY(tileSize*2);
+      //   i++;
+      // monster[i]=new Slime(this);
+      // monster[i].setX(tileSize*4);
+      // monster[i].setY(tileSize*2);
+      //   i++;
+      // monster[i]=new Slime(this);
+      // monster[i].setX(tileSize*5);
+      // monster[i].setY(tileSize*2);
+      //   i++;
+      // monster[i]=new skeleton(this);
+      // monster[i].setX(tileSize*6);
+      // monster[i].setY(tileSize*2);
+      if(monster.length==0){
+         int randomLocation[]; 
+         int currentDmg,currentDef; 
+         for(int k =0;k<10;k++){
+            randomLocation = generateRandomLocation();
+            monster[k]=new Slime(this);
+            
+            monster[k].setX(randomLocation[0]*tileSize);
+            monster[k].setY(randomLocation[1]*tileSize);
+         }
+      }
    }
    public Graphics2D getG2(){ return g2;}
    public void setGameState(int gameState) {this.gameState = gameState;}
@@ -283,13 +316,52 @@ public class GamePanel extends JPanel implements Runnable {
       playMusic(0);
       gameState = this.titleState;
    }
-
+   public void generateMonster(){
+      boolean isEmpty = true;
+      for(int i=0;i<monster.length;i++){
+         if(monster[i]!=null) isEmpty=false;
+      }
+      if(key.getEnterPressed()){
+         gameState=playState;
+      }
+      if(isEmpty){
+         int randomLocation[];
+         Slime slime = new Slime(this);
+         skeleton ske = new skeleton(this);
+         int newDmg = slime.getDamage()+10*round;
+         int newDef = slime.getDefense()+20*round;
+         int newHP= slime.getMaxLife()+50*round;
+         int defSke = ske.getDefense()+20*round;
+         int dmgSke = ske.getDamage()+10*round;
+         int HPske = ske.getMaxLife()+70*round;
+         gameState=dialogueState;
+         ui.setCurrentDialogue("ROUND "+round+"\nskeleton dmg/def/HP: "+dmgSke+"/"+defSke+"/"+HPske+"\nslime dmg/def/HP: "+newDmg+"/"+newDef+"/"+newHP);
+         for(int k =0;k<5;k++){
+            randomLocation = generateRandomLocation();
+            monster[k]=new Slime(this);
+            monster[k].setDamage(newDmg);
+            monster[k].setDefense(newDef);
+            monster[k].setX(randomLocation[0]);
+            monster[k].setY(randomLocation[1]);
+         }
+         for(int k =5;k<10;k++){
+            randomLocation = generateRandomLocation();
+            monster[k]=new skeleton(this);
+            monster[k].setDamage(dmgSke);
+            monster[k].setDefense(defSke);
+            monster[k].setX(randomLocation[0]);
+            monster[k].setY(randomLocation[1]);
+         }
+         round++;
+      }
+   }
    public void startGameThread() {
       this.gameThread = new Thread(this);
       this.gameThread.start();
    }
 
    public void run() {
+
       double drawInterval = (double)(1000000000 / this.FPS);
       double nextDrawTime = (double)System.nanoTime() + drawInterval;
       long lastTime = System.nanoTime();
@@ -331,6 +403,8 @@ public class GamePanel extends JPanel implements Runnable {
    }
 
    public void update() {
+      
+      generateMonster();
       if (this.gameState == this.playState) {
          this.player.update();
          for(int i = 0; i < npc.length; ++i) if (npc[i] != null) npc[i].update();
@@ -349,7 +423,7 @@ public class GamePanel extends JPanel implements Runnable {
          this.player.setNPCindex(this.getColCheckInteract(this.player, this.npc));
          this.player.interactNPC(this.player.getNPCindex());
       }
-
+     key.setEnterPressed(false);
    }
 
    public void paintComponent(Graphics g) {
@@ -465,9 +539,18 @@ public class GamePanel extends JPanel implements Runnable {
       this.effect.play();
    }
    public void resetGame(){
-      setMonster();
+      round=1;
+      for(int i=0;i<monster.length;i++){
+         monster[i]=null;
+      }
       player.setDefaultPosition();
       player.resetHealth();
+      respawnTicket=3;
+   }
+   public void Respawn(){
+      player.setDefaultPosition();
+      player.resetHealth();
+      respawnTicket--;
    }
 
 

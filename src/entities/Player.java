@@ -287,6 +287,7 @@ public class Player extends Entity {
     public void update() {
         // checkIfDied();
         ensureLimit();
+        checkLevelUp();
         // ATTACKING
         if (getAttacking()) {
             attack();
@@ -386,6 +387,7 @@ public class Player extends Entity {
                     spriteCounter = 0;
                 }
             }
+
             // OUTSIDE (KHI CẢ ĐI CẢ ĐỨNG IM)
             manaCooldown();
             if(getShotCountdown()<30) setShotCountdown(getShotCountdown()+1);
@@ -407,8 +409,6 @@ public class Player extends Entity {
             }
             // CHECK ENTITY'S COLLISION
             monsterIndex = gp.getColCheckEntity(this, gp.getMonster());
-            NPCindex = gp.getColCheckEntity(this, gp.getNPC());
-
             // CHECK EVENT
             gp.getEvent().checkEvent();
             // CHECK INTERACTION OF NPC
@@ -422,8 +422,6 @@ public class Player extends Entity {
                 }
             }
             interactMonster(monsterIndex);
-            // CHECK EVENT
-            gp.getKey().setEnterPressed(false);
         }
     }
 
@@ -954,7 +952,6 @@ public class Player extends Entity {
         if (ObjIndex != 999) {// 999 is the index of monster, NPC ...
             switch (gp.getObjName(ObjIndex)) {
                 case "Key":
-                    // gp.setObj(null, ObjIndex);
                     hasKey = true;
                     pickupObject(ObjIndex);
                     break;
@@ -962,7 +959,7 @@ public class Player extends Entity {
                 case "Chest":
                     for (int i = 0; i < inventory.size(); i++) {
                         if (inventory.get(i).getName().matches("Key") &&
-                                gp.getObj(ObjIndex).getName().equals("Chest")) {
+                            gp.getObj(ObjIndex).getName().equals("Chest")) {
                             gp.getObj(ObjIndex).setSdown1(setup("/obj/PLEASE", 1));
                             gp.getObj(ObjIndex).setName("UsedChest");
                             gp.setObj(new UltraSword(gp), 5, 5);
@@ -990,27 +987,6 @@ public class Player extends Entity {
                     gp.getui().addMessage("Speed up!");
                     break;
                 case "StrengthPotion":
-
-                    // setStrength(getStrength()+1);
-                    // randomX = random.nextInt(gp.getMaxWorldCol());
-                    // randomY = random.nextInt(gp.getMaxWorldRow());
-                    // mapTile = gp.getMapTile();
-                    // checkIndex = mapTile[randomY][randomX];
-                    // System.out.println(checkIndex);
-                    // System.out.println(randomX);
-                    // System.out.println(randomY);
-                    // System.out.println(gp.getExactTile(checkIndex).getGetCollision());
-                    // while (gp.getExactTile(checkIndex).getGetCollision()) {
-                    // if (randomX < gp.getMaxWorldCol() - 1)
-                    // randomX++;
-                    // else if (randomY < gp.getMaxWorldRow())
-                    // randomY++;
-                    // else
-                    // randomY--;
-                    // checkIndex = mapTile[randomY][randomX];
-                    // }
-                    // gp.getObj(ObjIndex).setX(randomX * gp.getTileSize());
-                    // gp.getObj(ObjIndex).setY(randomY * gp.getTileSize());
                     pickupObject(ObjIndex);
                     break;
                 case "UltraSword":
@@ -1021,6 +997,11 @@ public class Player extends Entity {
                     this.setCurrentShield(gp.getObj(ObjIndex));
                     pickupObject(ObjIndex);
                     break;
+                case "Exp":
+                    int [] newLoc = gp.generateRandomLocation();
+                    setExp(getExp()+1);
+                    gp.getObj(ObjIndex).setX(newLoc[0]);
+                    gp.getObj(ObjIndex).setY(newLoc[1]);
             }
         } else {
             try {
@@ -1058,7 +1039,7 @@ public class Player extends Entity {
                     break;
             }
         } else {
-            gp.getKey().setEnterPressed(false);
+            //gp.getKey().setEnterPressed(false);
         }
     }
 
@@ -1091,7 +1072,6 @@ public class Player extends Entity {
                     gp.getui().addMessage("You killed a " + gp.getExactMonster(i).getName());
                     setExp(getExp() + gp.getExactMonster(i).getExp());
                     gp.getui().addMessage("+" + gp.getExactMonster(i).getExp() + " EXP");
-                    checkLevelUp();
                 }
             }
         }
@@ -1107,7 +1087,7 @@ public class Player extends Entity {
             gp.getKey().setEnterPressed(false);
         }
         if (inventory.get(gp.getui().getItemIndexInInventory()).getType() == getConsumableType()) {
-            setStrength(getStrength() + 3);
+            setDamage(getDamage() + 20);
             inventory.remove(gp.getui().getItemIndexInInventory());
             gp.getKey().setEnterPressed(false);
         }
@@ -1119,7 +1099,9 @@ public class Player extends Entity {
             setExp(0);
             setNextLevelExp(getNextLevelExp() * 2);
             setMaxLife(getMaxLife() + 4);
-            setDamage(getDamage() + 1);
+            setDamage(getDamage() + 50);
+            setDefense(getDefense()+10);
+            getProjectile().setDamage(getProjectile().getDamage()+100);
             setLife(getMaxLife());// heal to full health
             gp.playSoundEffect(10);
         }

@@ -247,12 +247,12 @@ public class Entity {
     public Entity getCurrentWeapon(){return currentWeapon;}
     public void setCurrentWeapon(Entity weapon){
         this.currentWeapon=weapon;
-        setDamage(strength*weapon.getAttackValue());
+        setDamage(damage+strength*weapon.getAttackValue());
     }
     public Entity getCurrentShield(){return currentShield;}
     public void setCurrentShield(Entity shield){
         this.currentShield=shield;
-        setDefense(def*shield.getDefenseValue());
+        setDefense(defense+def*shield.getDefenseValue());
     }
     public int getDefenseValue(){return defenseValue;}
     public void setDefenseValue(int defenseValue){this.defenseValue=defenseValue;}
