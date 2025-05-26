@@ -19,7 +19,7 @@ import main.UI;
 public class Entity {
     protected GamePanel gp;
     private UI ui;
-    public int x, y;
+    private int x, y;
     //INFORMATION OF THE CHARACTER
     private int maxLife,life;
     private int mana, maxMana;
@@ -59,7 +59,7 @@ public class Entity {
             aup1,aup2,aup3,aup4,aup5,aup6,aup7,aup8,aup9,aup10,
             aleft1,aleft2,aleft3,aleft4,aleft5,aleft6,aleft7,aleft8,aleft9,aleft10,
             aright1,aright2,aright3,aright4,aright5,aright6,aright7,aright8,aright9,aright10;
-    public String direction="sdown";
+    private String direction="sdown";
     
     private Rectangle solidArea = new Rectangle(24, 32, 64, 64);
     private Rectangle triggleInteract = new Rectangle(-50, 0, 192, 192);

@@ -15,7 +15,6 @@ import javax.imageio.ImageIO;
 
 //import main.GamePanel;
 import main.KeyHandler;
-import objects.Key;
 import objects.Shield;
 import objects.Sword;
 import objects.UltraShield;
@@ -144,9 +143,9 @@ public class Player extends Entity {
     }
 
     public void setDefaultPosition() {
-        x = 300;
-        y = 200;
-        direction = "sdown";
+        setX(300);
+        setY(200);
+        setDirection("sdown");
     }
 
     public void setDefaultValues() {
@@ -299,16 +298,16 @@ public class Player extends Entity {
             if (key.upPressed == true || key.downPressed == true || key.leftPressed == true
                     || key.rightPressed == true) {
                 if (key.upPressed == true) {
-                    direction = "up";
+                    setDirection("up");
                 }
                 if (key.downPressed == true) {
-                    direction = "down";
+                    setDirection("down");
                 }
                 if (key.leftPressed == true) {
-                    direction = "left";
+                    setDirection("left");
                 }
                 if (key.rightPressed == true) {
-                    direction = "right";
+                    setDirection("right");
                 }
                 spriteCounter++;
 
@@ -329,13 +328,13 @@ public class Player extends Entity {
                     // case "left": x-=speed; break;
                     // } nếu không muốn người chơi đi chéo
                     if (key.upPressed == true)
-                        y -= getSpeed();
+                        setY(getY()-getSpeed());
                     if (key.downPressed == true)
-                        y += getSpeed();
+                        setY(getY()+getSpeed());
                     if (key.leftPressed == true)
-                        x -= getSpeed();
+                        setX(getX()-getSpeed());
                     if (key.rightPressed == true)
-                        x += getSpeed();
+                        setX(getX()+getSpeed());
                 } else {// khi va chạm
                     if (spriteCounter == 3 && monsterIndex == 999)
                         gp.playSoundEffect(5);
@@ -356,21 +355,21 @@ public class Player extends Entity {
                     spriteCounter = 0;
                 }
             } else {// khi đứng im
-                switch (direction) {
+                switch(getDirection()) {
                     case "up":
-                        direction = "sup";
+                        setDirection("sup");
                         spriteNum = 1;
                         break;
                     case "down":
-                        direction = "sdown";
+                        setDirection("sdown");
                         spriteNum = 1;
                         break;
                     case "right":
-                        direction = "sright";
+                        setDirection("sright");
                         spriteNum = 1;
                         break;
                     case "left":
-                        direction = "sleft";
+                        setDirection("sleft");
                         spriteNum = 1;
                         break;
                 }
@@ -439,7 +438,7 @@ public class Player extends Entity {
                 (gp.getPlayerScreenY() + getSolidAreaY()),
                 getSolidAreaWidth(), getSolidAreaHeight());
         g2.setColor(new Color(100, 100, 100, 100));
-        switch (direction) {
+        switch (getDirection()) {
             case "up":
             case "sup":
                 g2.fillRect(
@@ -475,7 +474,7 @@ public class Player extends Entity {
         int tempX = screenX;
         int tempY = screenY;
         BufferedImage image = null;
-        switch (direction) {
+        switch (getDirection()) {
             case "up":
                 if (getAttacking() == false) {
                     if (spriteNum == 1) {
@@ -850,8 +849,8 @@ public class Player extends Entity {
     }
 
     public int getAttackX() {
-        int attX = x - 12;
-        switch (direction) {
+        int attX = getX() - 12;
+        switch (getDirection()) {
             case "left":
                 attX -= getAttackingAreaWidth();
                 break;
@@ -869,8 +868,8 @@ public class Player extends Entity {
     }
 
     public int getAttackY() {
-        int attY = y;
-        switch (direction) {
+        int attY = getY();
+        switch (getDirection()) {
             case "up":
                 attY -= getAttackingAreaHeight();
                 break;
@@ -895,7 +894,7 @@ public class Player extends Entity {
         setSolidAreaWidth(solidAreaWidth);
         setSolidAreaHeight(solidAreaHeight);
         attackSpriteCounter++;
-        switch (direction) {
+        switch (getDirection()) {
             case "up":
             case "sup":
             case "down":

@@ -11,9 +11,9 @@ public class CollisionChecker {
    }
 
    public void checkTile(Entity entity) {
-      int entityTop = entity.y + entity.getSolidAreaY();
+      int entityTop = entity.getY() + entity.getSolidAreaY();
       int entityDown = entityTop + entity.getSolidAreaHeight();
-      int entityLeft = entity.x + entity.getSolidAreaX();
+      int entityLeft = entity.getX() + entity.getSolidAreaX();
       int entityRight = entityLeft + entity.getSolidAreaWidth();
       int blockTop = entityTop / this.gp.getTileSize();
       int blockDown = entityDown / this.gp.getTileSize();

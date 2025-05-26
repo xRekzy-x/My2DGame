@@ -12,7 +12,7 @@ public class skeleton extends Entity {
 
    public skeleton(GamePanel gp) {
       super(gp);
-      this.direction = "down";
+      this.setDirection("down");
       //SET SOLID AREA
       this.setSolidArea(this.newSolid);
       this.setSolidAreaDefaultX(this.getSolidAreaX());
@@ -89,15 +89,15 @@ public class skeleton extends Entity {
       if (this.TimeToChangeDirection == 120) {
       int i = random.nextInt(5) + 1;
         switch(i) {
-            case 1:this.direction = "up";break;
-            case 2: this.direction = "down"; break;
-            case 3:this.direction = "left"; break;
-            case 4: this.direction = "right"; break;
+            case 1:this.setDirection("up");break;
+            case 2: this.setDirection("down");break;
+            case 3:this.setDirection("left");break;
+            case 4:this.setDirection("right");break;
             case 5:
-                if (this.direction == "down") {this.direction = "sdown";}
-                if (this.direction == "up") {this.direction = "sup";}
-                if (this.direction == "left") {this.direction = "sleft";}
-                if (this.direction == "right") {this.direction = "sright";}
+                if (this.getDirection() == "down") {this.setDirection("sdown");}
+                if (this.getDirection() == "up") {this.setDirection("sup");}
+                if (this.getDirection() == "left") {this.setDirection("left");}
+                if (this.getDirection() == "right") {this.setDirection("sright");}
                 break;
         }
         TimeToChangeDirection = 0;

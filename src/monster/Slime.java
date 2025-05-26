@@ -89,10 +89,10 @@ public class Slime extends Entity {
         if (this.TimeToChangeDirection == 120) {
             int i = random.nextInt(4) + 1;
             switch (i) {
-                case 1: direction = "up"; break;
-                case 2: direction = "down"; break;
-                case 3: direction = "left";break;
-                case 4: direction = "right"; break;
+                case 1: setDirection("up"); break;
+                case 2: setDirection("down"); break;
+                case 3: setDirection("left");break;
+                case 4: setDirection("right"); break;
                 // case 5:
                 // if (this.direction == "down") {this.direction = "sdown";}
                 // if (this.direction == "up") {this.direction = "sup";}
@@ -105,16 +105,16 @@ public class Slime extends Entity {
         int i = random.nextInt(100)+1;
         if(getShotCountdown()<30) setShotCountdown(getShotCountdown()+1);
         if(i>99&&getProjectile().getAlive()==false&&getShotCountdown()==30){
-            getProjectile().set(getX(), getY(), direction, true, this);
+            getProjectile().set(getX(), getY(), getDirection(), true, this);
             gp.addProjectile(getProjectile());
             setShotCountdown(0);
         }
     }
     public void damageReaction(){
         TimeToChangeDirection=0;
-        if(gp.getPlayer().getDirection()=="sdown") direction = "down";
-        if(gp.getPlayer().getDirection()=="sup") direction = "up";
-        if(gp.getPlayer().getDirection()=="sleft") direction = "left";
-        if(gp.getPlayer().getDirection()=="sright") direction = "right";
+        if(gp.getPlayer().getDirection()=="sdown") setDirection("down");
+        if(gp.getPlayer().getDirection()=="sup") setDirection("up");
+        if(gp.getPlayer().getDirection()=="sleft") setDirection("left");
+        if(gp.getPlayer().getDirection()=="sright") setDirection("right");
     }
 }

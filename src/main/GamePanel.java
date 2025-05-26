@@ -174,46 +174,6 @@ public class GamePanel extends JPanel implements Runnable {
       monster[0] = new skeleton(this);
       monster[0].setX(480);
       monster[0].setY(480);
-      // monster[1]=new Slime(this);
-      // monster[1].setX(0*tileSize);
-      // monster[1].setY(6*tileSize);
-      // monster[2]=new Slime(this);
-      // monster[2].setX(getPlayerX()+tileSize);
-      // monster[2].setY(getPlayerY()-tileSize);
-      // monster[3]=new Slime(this);
-      // monster[3].setX(tileSize*1);
-      // monster[3].setY(tileSize*2);
-      // i++;
-      // monster[i]=new Slime(this);
-      // monster[i].setX(tileSize*2);
-      // monster[i].setY(tileSize*2);
-      //   i++;
-      // monster[i]=new Slime(this);
-      // monster[i].setX(tileSize*3);
-      // monster[i].setY(tileSize*2);
-      //   i++;
-      // monster[i]=new Slime(this);
-      // monster[i].setX(tileSize*4);
-      // monster[i].setY(tileSize*2);
-      //   i++;
-      // monster[i]=new Slime(this);
-      // monster[i].setX(tileSize*5);
-      // monster[i].setY(tileSize*2);
-      //   i++;
-      // monster[i]=new skeleton(this);
-      // monster[i].setX(tileSize*6);
-      // monster[i].setY(tileSize*2);
-      if(monster.length==0){
-         int randomLocation[]; 
-         int currentDmg,currentDef; 
-         for(int k =0;k<10;k++){
-            randomLocation = generateRandomLocation();
-            monster[k]=new Slime(this);
-            
-            monster[k].setX(randomLocation[0]*tileSize);
-            monster[k].setY(randomLocation[1]*tileSize);
-         }
-      }
    }
    public Graphics2D getG2(){ return g2;}
    public void setGameState(int gameState) {this.gameState = gameState;}
@@ -234,8 +194,8 @@ public class GamePanel extends JPanel implements Runnable {
    public int getWorldWidth() {return worldWidth;}
    public int getMaxWorldRow() {return maxWorldRow;}
    public int getWorldHeight() {return worldHeight;}
-   public int getPlayerX() {return this.player.x;}
-   public int getPlayerY() {return this.player.y;}
+   public int getPlayerX() {return this.player.getX();}
+   public int getPlayerY() {return this.player.getY();}
    public int getPlayerScreenX() {return this.player.getScreenX();}
    public int getPlayerScreenY() {return this.player.getScreenY();}
    public int getStrength() {return this.player.getStrength();}
@@ -341,6 +301,7 @@ public class GamePanel extends JPanel implements Runnable {
             monster[k]=new Slime(this);
             monster[k].setDamage(newDmg);
             monster[k].setDefense(newDef);
+            monster[k].setMaxLife(newHP);
             monster[k].setX(randomLocation[0]);
             monster[k].setY(randomLocation[1]);
          }
@@ -349,6 +310,7 @@ public class GamePanel extends JPanel implements Runnable {
             monster[k]=new skeleton(this);
             monster[k].setDamage(dmgSke);
             monster[k].setDefense(defSke);
+            monster[k].setMaxLife(HPske);
             monster[k].setX(randomLocation[0]);
             monster[k].setY(randomLocation[1]);
          }
@@ -403,7 +365,6 @@ public class GamePanel extends JPanel implements Runnable {
    }
 
    public void update() {
-      
       generateMonster();
       if (this.gameState == this.playState) {
          this.player.update();
@@ -475,7 +436,7 @@ public class GamePanel extends JPanel implements Runnable {
          Collections.sort(entityList, new Comparator<Entity>() {
             @Override
             public int compare(Entity e1, Entity e2) {
-               return Integer.compare(e1.y, e2.y);
+               return Integer.compare(e1.getY(), e2.getY());
             }
          });//sort by Y(increasing)(index 0 is the has the smallest Y)
          player.setY(normalY);

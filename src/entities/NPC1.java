@@ -15,7 +15,7 @@ public class NPC1 extends Entity {
     int dialogueIndex=0;
     public NPC1(GamePanel gp){
         super(gp);
-        direction="sdown";
+        setDirection("sdown");
         super.setSpeed(1);
         super.setType(2);
         super.setFrame(2);
