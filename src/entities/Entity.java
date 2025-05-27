@@ -16,7 +16,7 @@ import main.GamePanel;
 import main.ImageModification;
 import main.UI;
 
-public class Entity {
+public abstract class Entity {
     protected GamePanel gp;
     private UI ui;
     private int x, y;

@@ -1,15 +1,6 @@
 package entities;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.sql.Time;
-import java.util.Random;
-
-import javax.imageio.ImageIO;
-
 import main.GamePanel;
-import main.ImageModification;
 
 public class NPC1 extends Entity {
     int dialogueIndex=0;

@@ -11,7 +11,7 @@ public class GamePlay {
         window.setResizable(false);
         window.setTitle("_xOas");
 
-        GamePanel gamepanel = new GamePanel();
+        GamePanel gamepanel =GamePanel.getInstance();
         window.add(gamepanel);
         window.pack();//cause this window to be sized to fit the preferred size and layouts of its subcomponents(gamepanel)
 

@@ -51,7 +51,7 @@ public class Event {
         int yDistance = Math.abs(gp.getPlayerY()-previousEventY);
         int distance = Math.max(xDistance,yDistance);//pick the greater one between 2
         if(distance > gp.getTileSize()) canTouchEvent=true;
-        if(hit(12,4,"any")==true){Healing(gp.getDialogueState());}
+        if(hit(1,8,"any")==true){Healing(gp.getDialogueState());}
         if(canTouchEvent){   
             if(hit(1,7,"any")==true){damagePit(gp.getDialogueState());} 
         }
@@ -79,7 +79,7 @@ public class Event {
     }
     public void damagePit(int gameState){
         gp.setGameState(gameState);
-        gp.getui().setCurrentDialogue("RƠI MẸ VÀO HỐ RỒI");
+        gp.getui().setCurrentDialogue("YOU'VE FALLEN DOWN \nINTO A HOLE");
         gp.getPlayer().setLife(gp.getPlayer().getLife()-1);
         canTouchEvent=false;
     }

@@ -86,8 +86,8 @@ public class GamePanel extends JPanel implements Runnable {
    //COUNTER
    private int round=1;
    private int respawnTicket = 3;
-
-   public GamePanel() {
+   private static GamePanel instance;
+   private GamePanel() {
       this.player = new Player(this, this.key);
       this.playerX = 100;
       this.playerY = 100;
@@ -102,6 +102,12 @@ public class GamePanel extends JPanel implements Runnable {
       this.addKeyListener(this.key);
       this.setFocusable(true);
       this.setFocusTraversalKeysEnabled(false);
+   }
+   public static GamePanel getInstance(){
+      if(instance == null){
+         instance = new GamePanel();
+      }
+      return instance;
    }
    //GET COLLISION CHECK
    public void getColCheckTile(Entity entity) {colCheck.checkTile(entity);}
